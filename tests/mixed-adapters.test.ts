@@ -378,7 +378,7 @@ describe("混合适配器测试", () => {
 
       // 只在第三层（Redis）设置值
       await redisAdapter.set("key", "value3");
-      
+
       // 验证 Redis 适配器确实有值（直接调用 get 方法）
       const redisValue = await redisAdapter.get("key");
       expect(redisValue).toBe("value3");
