@@ -3,7 +3,14 @@
  */
 
 import { afterAll, describe, expect, it } from "@dreamer/test";
-import { CacheManager, MemoryAdapter, MultiLevelCache } from "../src/mod.ts";
+import {
+  CacheManager,
+  FileAdapter,
+  MemoryAdapter,
+  MultiLevelCache,
+  RedisAdapter,
+} from "../src/mod.ts";
+import type { RedisClient } from "../src/adapters/redis.ts";
 
 describe("Cache", () => {
   describe("MemoryAdapter", () => {
@@ -514,6 +521,63 @@ describe("Cache", () => {
 
       expect(manager.getAdapter()).toBe(adapter);
     });
+
+    it("应该使用 FileAdapter", async () => {
+      const { makeTempDir, remove } = await import(
+        "@dreamer/runtime-adapter"
+      );
+      const testDir = await makeTempDir({ prefix: "cache-test-" });
+      const adapter = new FileAdapter({ cacheDir: testDir });
+      const manager = new CacheManager(adapter);
+
+      try {
+        await manager.set("key", "value");
+        const value = await manager.get("key");
+        expect(value).toBe("value");
+      } finally {
+        adapter.stopCleanup();
+        await remove(testDir, { recursive: true });
+      }
+    });
+
+    it("应该使用 RedisAdapter（mock）", async () => {
+      // 创建 mock Redis 客户端
+      const storage = new Map<string, string>();
+      const mockClient: RedisClient = {
+        async set(key: string, value: string) {
+          storage.set(key, value);
+        },
+        async get(key: string) {
+          return storage.get(key) || null;
+        },
+        async del(key: string) {
+          const existed = storage.has(key);
+          storage.delete(key);
+          return existed ? 1 : 0;
+        },
+        async exists(key: string) {
+          return storage.has(key) ? 1 : 0;
+        },
+        async keys(pattern: string) {
+          const regex = new RegExp(
+            pattern.replace(/\*/g, ".*").replace(/\?/g, "."),
+          );
+          return Array.from(storage.keys()).filter((key) => regex.test(key));
+        },
+        async expire(key: string, seconds: number) {
+          return storage.has(key) ? 1 : 0;
+        },
+      };
+
+      const adapter = new RedisAdapter({ client: mockClient });
+      const manager = new CacheManager(adapter);
+
+      await manager.set("key", "value");
+      const value = await manager.get("key");
+      expect(value).toBe("value");
+
+      await adapter.disconnect();
+    });
   });
 
   describe("MultiLevelCache", () => {
@@ -744,6 +808,87 @@ describe("Cache", () => {
       expect(adapter2.has("key1")).toBeFalsy();
       expect(adapter2.has("key2")).toBeFalsy();
       expect(adapter2.has("key3")).toBeTruthy();
+    });
+
+    it("应该支持混合适配器（Memory + File）", async () => {
+      const { makeTempDir, remove } = await import(
+        "@dreamer/runtime-adapter"
+      );
+      const testDir = await makeTempDir({ prefix: "cache-test-" });
+      const memoryAdapter = new MemoryAdapter();
+      const fileAdapter = new FileAdapter({ cacheDir: testDir });
+      const cache = new MultiLevelCache(memoryAdapter, fileAdapter);
+
+      try {
+        await cache.set("key", "value");
+
+        expect(memoryAdapter.get("key")).toBe("value");
+        expect(await fileAdapter.get("key")).toBe("value");
+
+        // 从第一层删除
+        memoryAdapter.delete("key");
+
+        // 应该能从第二层获取
+        const value = await cache.get("key");
+        expect(value).toBe("value");
+
+        // 应该回填到第一层
+        expect(memoryAdapter.get("key")).toBe("value");
+      } finally {
+        fileAdapter.stopCleanup();
+        await remove(testDir, { recursive: true });
+      }
+    });
+
+    it("应该支持混合适配器（Memory + Redis）", async () => {
+      // 创建 mock Redis 客户端
+      const storage = new Map<string, string>();
+      const mockClient: RedisClient = {
+        async set(key: string, value: string) {
+          storage.set(key, value);
+        },
+        async get(key: string) {
+          return storage.get(key) || null;
+        },
+        async del(key: string) {
+          const existed = storage.has(key);
+          storage.delete(key);
+          return existed ? 1 : 0;
+        },
+        async exists(key: string) {
+          return storage.has(key) ? 1 : 0;
+        },
+        async keys(pattern: string) {
+          const regex = new RegExp(
+            pattern.replace(/\*/g, ".*").replace(/\?/g, "."),
+          );
+          return Array.from(storage.keys()).filter((key) => regex.test(key));
+        },
+        async expire(key: string, seconds: number) {
+          return storage.has(key) ? 1 : 0;
+        },
+      };
+
+      const memoryAdapter = new MemoryAdapter();
+      const redisAdapter = new RedisAdapter({ client: mockClient });
+      const cache = new MultiLevelCache(memoryAdapter, redisAdapter);
+
+      await cache.set("key", "value");
+
+      expect(memoryAdapter.get("key")).toBe("value");
+      expect(await redisAdapter.get("key")).toBe("value");
+
+      // 从第一层删除
+      memoryAdapter.delete("key");
+
+      // 应该能从第二层获取
+      const value = await cache.get("key");
+      expect(value).toBe("value");
+
+      // 应该回填到第一层
+      expect(memoryAdapter.get("key")).toBe("value");
+
+      await redisAdapter.disconnect();
     });
   });
 });

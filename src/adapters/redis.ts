@@ -4,7 +4,6 @@
  * @fileoverview Redis 缓存适配器
  */
 
-import { IS_BUN } from "@dreamer/runtime-adapter";
 import type { CacheAdapter, CacheItem } from "./types.ts";
 
 /**
@@ -103,9 +102,7 @@ export class RedisAdapter implements CacheAdapter {
         // 动态导入 Redis 客户端库
         // 在 Bun 中，直接使用包名；在 Deno 中，使用 npm: 前缀
         // 使用 runtime-adapter 来检测运行时环境，确保与 bun 兼容
-        const redisModule = IS_BUN
-          ? await import("redis")
-          : await import("npm:redis@^5.0.0");
+        const redisModule = await import("redis");
         const { createClient } = redisModule;
 
         // 构建连接配置
