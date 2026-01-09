@@ -4,6 +4,116 @@
  * @fileoverview IndexedDB 缓存适配器
  */
 
+/**
+ * IndexedDB 相关类型定义（浏览器 API，在 Deno 服务端不可用）
+ */
+interface IDBDatabase {
+  name: string;
+  version: number;
+  objectStoreNames: DOMStringList;
+  close(): void;
+  transaction(
+    storeNames: string | string[],
+    mode?: "readonly" | "readwrite" | "versionchange",
+  ): IDBTransaction;
+  createObjectStore(
+    name: string,
+    options?: IDBObjectStoreParameters,
+  ): IDBObjectStore;
+  deleteObjectStore(name: string): void;
+}
+
+interface IDBOpenDBRequest extends IDBRequest {
+  onupgradeneeded: ((event: IDBVersionChangeEvent) => void) | null;
+  onblocked: ((event: Event) => void) | null;
+}
+
+interface IDBRequest {
+  result: any;
+  error: DOMException | null;
+  onsuccess: ((event: Event) => void) | null;
+  onerror: ((event: Event) => void) | null;
+}
+
+interface IDBTransaction {
+  objectStore(name: string): IDBObjectStore;
+  mode: "readonly" | "readwrite" | "versionchange";
+  abort(): void;
+  commit(): void;
+  oncomplete: ((event: Event) => void) | null;
+  onerror: ((event: Event) => void) | null;
+  onabort: ((event: Event) => void) | null;
+}
+
+interface IDBObjectStore {
+  add(value: any, key?: IDBValidKey): IDBRequest;
+  put(value: any, key?: IDBValidKey): IDBRequest;
+  get(key: IDBValidKey): IDBRequest;
+  delete(key: IDBValidKey): IDBRequest;
+  clear(): IDBRequest;
+  count(query?: IDBValidKey | IDBKeyRange): IDBRequest;
+  getAllKeys(
+    query?: IDBValidKey | IDBKeyRange | null,
+    count?: number,
+  ): IDBRequest;
+  openCursor(
+    query?: IDBValidKey | IDBKeyRange | null,
+    direction?: "next" | "prev" | "nextunique" | "prevunique",
+  ): IDBRequest;
+}
+
+interface IDBKeyRange {
+  lower: any;
+  upper: any;
+  lowerOpen: boolean;
+  upperOpen: boolean;
+}
+
+interface IDBKeyRangeConstructor {
+  bound(
+    lower: any,
+    upper: any,
+    lowerOpen?: boolean,
+    upperOpen?: boolean,
+  ): IDBKeyRange;
+  lowerBound(lower: any, open?: boolean): IDBKeyRange;
+  upperBound(upper: any, open?: boolean): IDBKeyRange;
+  only(value: any): IDBKeyRange;
+}
+
+interface IDBVersionChangeEvent extends Event {
+  oldVersion: number;
+  newVersion: number | null;
+}
+
+interface IDBObjectStoreParameters {
+  keyPath?: string | string[] | null;
+  autoIncrement?: boolean;
+}
+
+interface DOMStringList {
+  readonly length: number;
+  contains(string: string): boolean;
+  item(index: number): string | null;
+}
+
+type IDBValidKey =
+  | string
+  | number
+  | Date
+  | ArrayBufferView
+  | ArrayBuffer
+  | IDBArrayKey;
+
+interface IDBArrayKey extends Array<IDBValidKey> {}
+
+/**
+ * IndexedDB 全局对象类型
+ */
+interface IndexedDB {
+  open(name: string, version?: number): IDBOpenDBRequest;
+  deleteDatabase(name: string): IDBRequest;
+}
 
 import type { CacheAdapter, CacheItem } from "./base.ts";
 
@@ -34,6 +144,8 @@ export class IndexedDBAdapter implements CacheAdapter {
   private initPromise: Promise<void> | null = null;
 
   constructor(options: IndexedDBAdapterOptions) {
+    // 使用类型断言，因为 Deno 的类型定义可能不包含 indexedDB
+    const indexedDB = (globalThis as any).indexedDB as IndexedDB | undefined;
     if (typeof indexedDB === "undefined") {
       throw new Error("IndexedDB 不可用，请在浏览器环境中使用");
     }
@@ -60,6 +172,7 @@ export class IndexedDBAdapter implements CacheAdapter {
     }
 
     this.initPromise = new Promise((resolve, reject) => {
+      const indexedDB = (globalThis as any).indexedDB as IndexedDB;
       const request = indexedDB.open(this.options.dbName, this.options.version);
 
       request.onerror = () => {
@@ -71,8 +184,8 @@ export class IndexedDBAdapter implements CacheAdapter {
         resolve();
       };
 
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
+      request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
+        const db = (event.target as unknown as IDBOpenDBRequest).result;
         if (!db.objectStoreNames.contains(this.options.storeName)) {
           db.createObjectStore(this.options.storeName);
         }
@@ -86,7 +199,7 @@ export class IndexedDBAdapter implements CacheAdapter {
    * 获取对象存储
    */
   private async getStore(
-    mode: IDBTransactionMode = "readonly",
+    mode: "readonly" | "readwrite" | "versionchange" = "readonly",
   ): Promise<IDBObjectStore> {
     await this.init();
     if (!this.db) {

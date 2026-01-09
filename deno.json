@@ -8,8 +8,7 @@
   },
   "publish": {
     "include": [
-      "src/mod.ts",
-      "src/client/mod.ts",
+      "src/**/*.ts",
       "LICENSE.md",
       "README.md"
     ],
