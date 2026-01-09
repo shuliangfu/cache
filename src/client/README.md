@@ -1,6 +1,11 @@
 # @dreamer/cache/client
 
-一个用于浏览器的缓存库，提供统一的缓存接口，支持 localStorage、sessionStorage、IndexedDB 和内存缓存。
+> 一个用于浏览器的缓存库，提供统一的缓存接口，支持 localStorage、sessionStorage、IndexedDB 和内存缓存
+
+[![JSR](https://jsr.io/badges/@dreamer/cache/client)](https://jsr.io/@dreamer/cache/client)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+---
 
 ## 服务端支持
 
@@ -213,10 +218,32 @@ interface CacheAdapter {
 - **TTL 管理**：自动清理过期缓存，避免内存泄漏
 - **异步操作**：所有操作都是异步的，不阻塞主线程
 
-## 备注
+---
+
+## 📝 备注
 
 - **统一接口**：与服务端使用相同的 API 接口，降低学习成本
 - **适配器模式**：支持多种缓存后端，易于扩展
 - **多级缓存**：支持多级缓存策略，提高性能
 - **类型安全**：完整的 TypeScript 类型支持
 - **无外部依赖**：纯 TypeScript 实现
+
+---
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+---
+
+## 📄 许可证
+
+MIT License - 详见 [LICENSE.md](../../../LICENSE.md)
+
+---
+
+<div align="center">
+
+**Made with ❤️ by Dreamer Team**
+
+</div>

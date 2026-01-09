@@ -1,6 +1,6 @@
 # @dreamer/cache
 
-> 一个用于 Deno 和 Bun 的缓存库，提供统一的缓存接口，支持服务端缓存（内存、文件、Redis）
+> 一个兼容 Deno 和 Bun 的缓存库，提供统一的缓存接口，支持服务端缓存（内存、文件、Redis）
 
 [![JSR](https://jsr.io/badges/@dreamer/cache)](https://jsr.io/@dreamer/cache)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -15,12 +15,29 @@
 
 ## ✨ 特性
 
-| 特性 | 说明 |
-|------|------|
-| 💾 **本地缓存** | 内存缓存（Map 实现）、LRU 缓存、TTL 支持、缓存策略（FIFO、LFU） |
-| 📁 **文件缓存** | 基于文件系统的持久化缓存、JSON 序列化存储、自动过期清理、目录结构管理、文件锁机制 |
-| 🔴 **Redis 缓存** | Redis 客户端封装、连接池管理、自动重连、集群支持 |
-| 🔌 **适配器模式** | 统一的缓存接口（CacheAdapter）、本地缓存适配器（MemoryAdapter）、文件缓存适配器（FileAdapter）、Redis 缓存适配器（RedisAdapter）、运行时切换缓存后端、多级缓存支持 |
+- **本地缓存**：
+  - 内存缓存（Map 实现）
+  - LRU 缓存（最近最少使用）
+  - TTL 支持（过期时间）
+  - 缓存策略（FIFO、LFU、LRU）
+- **文件缓存**：
+  - 基于文件系统的持久化缓存
+  - JSON 序列化存储
+  - 自动过期清理
+  - 目录结构管理
+  - 文件锁机制
+- **Redis 缓存**：
+  - Redis 客户端封装
+  - 连接池管理
+  - 自动重连
+  - 集群支持
+- **适配器模式**：
+  - 统一的缓存接口（CacheAdapter）
+  - 本地缓存适配器（MemoryAdapter）
+  - 文件缓存适配器（FileAdapter）
+  - Redis 缓存适配器（RedisAdapter）
+  - 运行时切换缓存后端
+  - 多级缓存支持
 
 ---
 
