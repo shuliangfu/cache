@@ -1,13 +1,13 @@
 /**
- * @module @dreamer/cache/client/adapters/memory
+ * @module @dreamer/cache/adapters/memory
  *
- * @fileoverview 内存缓存适配器（客户端）
+ * @fileoverview 内存缓存适配器
  */
 
-import type { CacheAdapter, CacheItem, CacheStrategy } from "./base.ts";
+import type { CacheAdapter, CacheItem, CacheStrategy } from "./types.ts";
 
 /**
- * 内存缓存适配器配置选项（客户端）
+ * 内存缓存适配器配置选项
  */
 export interface MemoryAdapterOptions {
   /** 默认过期时间（秒） */
@@ -19,16 +19,13 @@ export interface MemoryAdapterOptions {
 }
 
 /**
- * 内存缓存适配器（客户端）
- * 与服务端实现相同，但用于浏览器环境
+ * 内存缓存适配器
+ * 基于 Map 实现的内存缓存，支持 LRU、FIFO、LFU 策略和 TTL
  */
 export class MemoryAdapter implements CacheAdapter {
-  private cache: Map<
-    string,
-    CacheItem & { accessedAt: number; accessCount: number }
-  > = new Map();
+  private cache: Map<string, CacheItem> = new Map();
   private options: Required<MemoryAdapterOptions>;
-  private accessOrder: string[] = [];
+  private accessOrder: string[] = []; // 用于 FIFO/LRU
   private cleanupTimer?: number;
 
   constructor(options: MemoryAdapterOptions = {}) {
@@ -44,6 +41,9 @@ export class MemoryAdapter implements CacheAdapter {
     }
   }
 
+  /**
+   * 获取缓存
+   */
   get(key: string): unknown {
     const item = this.cache.get(key);
 
@@ -70,6 +70,13 @@ export class MemoryAdapter implements CacheAdapter {
     return item.value;
   }
 
+  /**
+   * 设置缓存
+   * @param key 缓存键
+   * @param value 缓存值
+   * @param ttl 过期时间（秒），可选
+   * @param tags 标签数组，可选，用于批量删除
+   */
   set(key: string, value: unknown, ttl?: number, tags?: string[]): void {
     const now = Date.now();
     const expiresAt = ttl
@@ -78,7 +85,7 @@ export class MemoryAdapter implements CacheAdapter {
       ? now + this.options.ttl * 1000
       : undefined;
 
-    const item = {
+    const item: CacheItem = {
       value,
       expiresAt,
       accessedAt: now,
@@ -107,11 +114,17 @@ export class MemoryAdapter implements CacheAdapter {
     }
   }
 
+  /**
+   * 删除缓存
+   */
   delete(key: string): void {
     this.cache.delete(key);
     this.removeFromAccessOrder(key);
   }
 
+  /**
+   * 检查键是否存在
+   */
   has(key: string): boolean {
     const item = this.cache.get(key);
     if (!item) {
@@ -128,6 +141,9 @@ export class MemoryAdapter implements CacheAdapter {
     return true;
   }
 
+  /**
+   * 获取所有键
+   */
   keys(): string[] {
     const now = Date.now();
     const validKeys: string[] = [];
@@ -145,11 +161,17 @@ export class MemoryAdapter implements CacheAdapter {
     return validKeys;
   }
 
+  /**
+   * 清空所有缓存
+   */
   clear(): void {
     this.cache.clear();
     this.accessOrder = [];
   }
 
+  /**
+   * 批量获取
+   */
   getMany(keys: string[]): Promise<Record<string, unknown>> {
     const result: Record<string, unknown> = {};
 
@@ -163,6 +185,9 @@ export class MemoryAdapter implements CacheAdapter {
     return Promise.resolve(result);
   }
 
+  /**
+   * 批量设置
+   */
   setMany(data: Record<string, unknown>, ttl?: number): Promise<void> {
     for (const [key, value] of Object.entries(data)) {
       this.set(key, value, ttl);

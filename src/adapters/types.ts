@@ -1,17 +1,21 @@
 /**
- * @module @dreamer/cache/client/adapters/base
+ * @module @dreamer/cache/adapters/types
  *
- * @fileoverview 客户端缓存适配器基础接口和类型定义
+ * @fileoverview 缓存适配器类型定义
  */
 
 /**
- * 缓存项（带过期时间）
+ * 缓存项
  */
 export interface CacheItem<T = unknown> {
   /** 缓存值 */
   value: T;
   /** 过期时间（时间戳，毫秒） */
   expiresAt?: number;
+  /** 访问时间（用于 LRU） */
+  accessedAt: number;
+  /** 访问次数（用于 LFU） */
+  accessCount: number;
   /** 标签数组（用于批量删除） */
   tags?: string[];
 }
@@ -26,12 +30,14 @@ export type CacheStrategy = "lru" | "fifo" | "lfu";
  */
 export interface CacheAdapter {
   /**
-   * 获取缓存值
+   * 获取缓存
+   * @param key 缓存键
+   * @returns 缓存值，如果不存在或已过期返回 undefined
    */
-  get(key: string): unknown | Promise<unknown>;
+  get(key: string): Promise<unknown> | unknown;
 
   /**
-   * 设置缓存值
+   * 设置缓存
    * @param key 缓存键
    * @param value 缓存值
    * @param ttl 过期时间（秒），可选
@@ -42,35 +48,43 @@ export interface CacheAdapter {
     value: unknown,
     ttl?: number,
     tags?: string[],
-  ): void | Promise<void>;
+  ): Promise<void> | void;
 
   /**
-   * 删除缓存值
+   * 删除缓存
+   * @param key 缓存键
    */
-  delete(key: string): void | Promise<void>;
+  delete(key: string): Promise<void> | void;
 
   /**
-   * 检查缓存是否存在
+   * 检查键是否存在
+   * @param key 缓存键
+   * @returns 是否存在
    */
-  has(key: string): boolean | Promise<boolean>;
+  has(key: string): Promise<boolean> | boolean;
 
   /**
    * 获取所有键
+   * @returns 所有缓存键
    */
-  keys(): string[] | Promise<string[]>;
+  keys(): Promise<string[]> | string[];
 
   /**
    * 清空所有缓存
    */
-  clear(): void | Promise<void>;
+  clear(): Promise<void> | void;
 
   /**
    * 批量获取
+   * @param keys 缓存键数组
+   * @returns 键值对对象
    */
   getMany(keys: string[]): Promise<Record<string, unknown>>;
 
   /**
    * 批量设置
+   * @param data 键值对对象
+   * @param ttl 过期时间（秒），可选
    */
   setMany(data: Record<string, unknown>, ttl?: number): Promise<void>;
 

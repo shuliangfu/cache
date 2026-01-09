@@ -65,7 +65,7 @@ export class SessionStorageAdapter implements CacheAdapter {
     }
   }
 
-  set(key: string, value: unknown, ttl?: number): void {
+  set(key: string, value: unknown, ttl?: number, tags?: string[]): void {
     try {
       const storageKey = this.getKey(key);
       const now = Date.now();
@@ -78,6 +78,7 @@ export class SessionStorageAdapter implements CacheAdapter {
       const item: CacheItem = {
         value,
         expiresAt,
+        tags: tags || undefined,
       };
 
       const itemStr = JSON.stringify(item);
@@ -160,5 +161,47 @@ export class SessionStorageAdapter implements CacheAdapter {
       this.set(key, value, ttl);
     }
     return Promise.resolve();
+  }
+
+  /**
+   * 根据标签删除缓存
+   * @param tags 标签数组
+   * @returns 删除的缓存键数量
+   */
+  deleteByTags(tags: string[]): number {
+    if (!tags || tags.length === 0) {
+      return 0;
+    }
+
+    const tagSet = new Set(tags);
+    const keysToDelete: string[] = [];
+    const prefix = this.options.prefix;
+
+    // 遍历所有存储的键
+    for (let i = 0; i < this.storage.length; i++) {
+      const storageKey = this.storage.key(i);
+      if (storageKey && storageKey.startsWith(prefix)) {
+        try {
+          const itemStr = this.storage.getItem(storageKey);
+          if (itemStr) {
+            const item: CacheItem = JSON.parse(itemStr);
+            // 检查是否匹配标签
+            if (item.tags && item.tags.some((tag) => tagSet.has(tag))) {
+              const originalKey = storageKey.substring(prefix.length);
+              keysToDelete.push(originalKey);
+            }
+          }
+        } catch {
+          // 忽略解析错误
+        }
+      }
+    }
+
+    // 删除匹配的缓存项
+    for (const key of keysToDelete) {
+      this.delete(key);
+    }
+
+    return keysToDelete.length;
   }
 }

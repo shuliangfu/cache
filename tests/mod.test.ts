@@ -243,6 +243,67 @@ describe("Cache", () => {
       expect(adapter.get("key2")).toBe("value2");
     });
 
+    it("应该支持设置缓存时添加标签", () => {
+      const adapter = new MemoryAdapter();
+      adapter.set("key1", "value1", undefined, ["tag1", "tag2"]);
+      adapter.set("key2", "value2", undefined, ["tag2", "tag3"]);
+      adapter.set("key3", "value3", undefined, ["tag3"]);
+
+      expect(adapter.get("key1")).toBe("value1");
+      expect(adapter.get("key2")).toBe("value2");
+      expect(adapter.get("key3")).toBe("value3");
+    });
+
+    it("应该根据标签删除缓存", () => {
+      const adapter = new MemoryAdapter();
+      adapter.set("key1", "value1", undefined, ["tag1", "tag2"]);
+      adapter.set("key2", "value2", undefined, ["tag2", "tag3"]);
+      adapter.set("key3", "value3", undefined, ["tag3"]);
+      adapter.set("key4", "value4"); // 没有标签
+
+      // 删除 tag1，应该只删除 key1
+      const deleted1 = adapter.deleteByTags(["tag1"]);
+      expect(deleted1).toBe(1);
+      expect(adapter.has("key1")).toBeFalsy();
+      expect(adapter.has("key2")).toBeTruthy();
+      expect(adapter.has("key3")).toBeTruthy();
+      expect(adapter.has("key4")).toBeTruthy();
+    });
+
+    it("应该根据多个标签删除缓存（任一标签匹配即删除）", () => {
+      const adapter = new MemoryAdapter();
+      adapter.set("key1", "value1", undefined, ["tag1", "tag2"]);
+      adapter.set("key2", "value2", undefined, ["tag2", "tag3"]);
+      adapter.set("key3", "value3", undefined, ["tag3"]);
+      adapter.set("key4", "value4", undefined, ["tag4"]);
+
+      // 删除 tag2 或 tag3，应该删除 key1, key2, key3
+      const deleted = adapter.deleteByTags(["tag2", "tag3"]);
+      expect(deleted).toBe(3);
+      expect(adapter.has("key1")).toBeFalsy();
+      expect(adapter.has("key2")).toBeFalsy();
+      expect(adapter.has("key3")).toBeFalsy();
+      expect(adapter.has("key4")).toBeTruthy();
+    });
+
+    it("应该处理空标签数组", () => {
+      const adapter = new MemoryAdapter();
+      adapter.set("key1", "value1", undefined, ["tag1"]);
+
+      const deleted = adapter.deleteByTags([]);
+      expect(deleted).toBe(0);
+      expect(adapter.has("key1")).toBeTruthy();
+    });
+
+    it("应该处理不存在的标签", () => {
+      const adapter = new MemoryAdapter();
+      adapter.set("key1", "value1", undefined, ["tag1"]);
+
+      const deleted = adapter.deleteByTags(["tag2"]);
+      expect(deleted).toBe(0);
+      expect(adapter.has("key1")).toBeTruthy();
+    });
+
     it("应该更新已存在的键", () => {
       const adapter = new MemoryAdapter();
       adapter.set("key", "value1");
@@ -387,6 +448,49 @@ describe("Cache", () => {
 
       expect(await manager.get("key1")).toBe("value1");
       expect(await manager.get("key2")).toBe("value2");
+    });
+
+    it("应该支持设置缓存时添加标签", async () => {
+      const adapter = new MemoryAdapter();
+      const manager = new CacheManager(adapter);
+
+      await manager.set("key1", "value1", undefined, ["tag1", "tag2"]);
+      await manager.set("key2", "value2", undefined, ["tag2", "tag3"]);
+
+      expect(await manager.get("key1")).toBe("value1");
+      expect(await manager.get("key2")).toBe("value2");
+    });
+
+    it("应该根据标签删除缓存", async () => {
+      const adapter = new MemoryAdapter();
+      const manager = new CacheManager(adapter);
+
+      await manager.set("key1", "value1", undefined, ["tag1", "tag2"]);
+      await manager.set("key2", "value2", undefined, ["tag2", "tag3"]);
+      await manager.set("key3", "value3", undefined, ["tag3"]);
+
+      // 删除 tag1，应该只删除 key1
+      const deleted1 = await manager.deleteByTags(["tag1"]);
+      expect(deleted1).toBe(1);
+      expect(await manager.has("key1")).toBeFalsy();
+      expect(await manager.has("key2")).toBeTruthy();
+      expect(await manager.has("key3")).toBeTruthy();
+    });
+
+    it("应该根据多个标签删除缓存", async () => {
+      const adapter = new MemoryAdapter();
+      const manager = new CacheManager(adapter);
+
+      await manager.set("key1", "value1", undefined, ["tag1", "tag2"]);
+      await manager.set("key2", "value2", undefined, ["tag2", "tag3"]);
+      await manager.set("key3", "value3", undefined, ["tag3"]);
+
+      // 删除 tag2 或 tag3，应该删除 key1, key2, key3
+      const deleted = await manager.deleteByTags(["tag2", "tag3"]);
+      expect(deleted).toBe(3);
+      expect(await manager.has("key1")).toBeFalsy();
+      expect(await manager.has("key2")).toBeFalsy();
+      expect(await manager.has("key3")).toBeFalsy();
     });
 
     it("应该支持切换适配器", async () => {
@@ -586,6 +690,60 @@ describe("Cache", () => {
 
       expect(adapter1.get("key1")).toBe("value1");
       expect(adapter2.get("key2")).toBe("value2");
+    });
+
+    it("应该支持设置缓存时添加标签", async () => {
+      const adapter1 = new MemoryAdapter();
+      const adapter2 = new MemoryAdapter();
+      const cache = new MultiLevelCache(adapter1, adapter2);
+
+      await cache.set("key1", "value1", undefined, ["tag1", "tag2"]);
+      await cache.set("key2", "value2", undefined, ["tag2", "tag3"]);
+
+      expect(await cache.get("key1")).toBe("value1");
+      expect(await cache.get("key2")).toBe("value2");
+    });
+
+    it("应该根据标签删除所有层级的缓存", async () => {
+      const adapter1 = new MemoryAdapter();
+      const adapter2 = new MemoryAdapter();
+      const cache = new MultiLevelCache(adapter1, adapter2);
+
+      await cache.set("key1", "value1", undefined, ["tag1", "tag2"]);
+      await cache.set("key2", "value2", undefined, ["tag2", "tag3"]);
+      await cache.set("key3", "value3", undefined, ["tag3"]);
+
+      // 删除 tag2，应该删除 key1 和 key2（所有层级）
+      const deleted = await cache.deleteByTags(["tag2"]);
+      expect(deleted).toBe(4); // 每个适配器删除 2 个，共 4 个
+
+      expect(adapter1.has("key1")).toBeFalsy();
+      expect(adapter1.has("key2")).toBeFalsy();
+      expect(adapter1.has("key3")).toBeTruthy();
+      expect(adapter2.has("key1")).toBeFalsy();
+      expect(adapter2.has("key2")).toBeFalsy();
+      expect(adapter2.has("key3")).toBeTruthy();
+    });
+
+    it("应该根据多个标签删除所有层级的缓存", async () => {
+      const adapter1 = new MemoryAdapter();
+      const adapter2 = new MemoryAdapter();
+      const cache = new MultiLevelCache(adapter1, adapter2);
+
+      await cache.set("key1", "value1", undefined, ["tag1"]);
+      await cache.set("key2", "value2", undefined, ["tag2"]);
+      await cache.set("key3", "value3", undefined, ["tag3"]);
+
+      // 删除 tag1 或 tag2，应该删除 key1 和 key2（所有层级）
+      const deleted = await cache.deleteByTags(["tag1", "tag2"]);
+      expect(deleted).toBe(4); // 每个适配器删除 2 个，共 4 个
+
+      expect(adapter1.has("key1")).toBeFalsy();
+      expect(adapter1.has("key2")).toBeFalsy();
+      expect(adapter1.has("key3")).toBeTruthy();
+      expect(adapter2.has("key1")).toBeFalsy();
+      expect(adapter2.has("key2")).toBeFalsy();
+      expect(adapter2.has("key3")).toBeTruthy();
     });
   });
 });

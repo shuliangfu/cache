@@ -248,7 +248,12 @@ export class IndexedDBAdapter implements CacheAdapter {
     }
   }
 
-  async set(key: string, value: unknown, ttl?: number): Promise<void> {
+  async set(
+    key: string,
+    value: unknown,
+    ttl?: number,
+    tags?: string[],
+  ): Promise<void> {
     try {
       const store = await this.getStore("readwrite");
       const now = Date.now();
@@ -261,6 +266,7 @@ export class IndexedDBAdapter implements CacheAdapter {
       const item: CacheItem = {
         value,
         expiresAt,
+        tags: tags || undefined,
       };
 
       const itemStr = JSON.stringify(item);
@@ -381,6 +387,71 @@ export class IndexedDBAdapter implements CacheAdapter {
   ): Promise<void> {
     for (const [key, value] of Object.entries(data)) {
       await this.set(key, value, ttl);
+    }
+  }
+
+  /**
+   * 根据标签删除缓存
+   * @param tags 标签数组
+   * @returns 删除的缓存键数量
+   */
+  async deleteByTags(tags: string[]): Promise<number> {
+    if (!tags || tags.length === 0) {
+      return 0;
+    }
+
+    const tagSet = new Set(tags);
+    const keysToDelete: string[] = [];
+
+    try {
+      const store = await this.getStore("readonly");
+
+      // 遍历所有键
+      const request = store.openCursor();
+      await new Promise<void>((resolve, reject) => {
+        request.onsuccess = () => {
+          const cursor = request.result as any;
+          if (cursor) {
+            try {
+              const itemStr = cursor.value as string;
+              const item: CacheItem = JSON.parse(itemStr);
+              // 检查是否匹配标签
+              if (item.tags && item.tags.some((tag) => tagSet.has(tag))) {
+                keysToDelete.push(cursor.key as string);
+              }
+            } catch {
+              // 忽略解析错误
+            }
+            cursor.continue();
+          } else {
+            resolve();
+          }
+        };
+
+        request.onerror = () => {
+          reject(new Error(`遍历缓存失败: ${request.error?.message}`));
+        };
+      });
+
+      // 删除匹配的缓存项
+      const writeStore = await this.getStore("readwrite");
+      for (const key of keysToDelete) {
+        await new Promise<void>((resolve, reject) => {
+          const deleteRequest = writeStore.delete(key);
+          deleteRequest.onsuccess = () => resolve();
+          deleteRequest.onerror = () => {
+            reject(new Error(`删除缓存失败: ${deleteRequest.error?.message}`));
+          };
+        });
+      }
+
+      return keysToDelete.length;
+    } catch (error) {
+      throw new Error(
+        `根据标签删除缓存失败: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
     }
   }
 }
