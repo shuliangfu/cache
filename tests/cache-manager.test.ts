@@ -1,0 +1,246 @@
+/**
+ * @fileoverview CacheManager 测试
+ */
+
+import { describe, expect, it } from "@dreamer/test";
+import type { RedisClient } from "../src/adapters/redis.ts";
+import {
+  CacheManager,
+  FileAdapter,
+  MemoryAdapter,
+  RedisAdapter,
+} from "../src/mod.ts";
+
+describe("CacheManager", () => {
+  it("应该创建缓存管理器", () => {
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+    expect(manager).toBeTruthy();
+  });
+
+  it("应该设置和获取缓存", async () => {
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+
+    await manager.set("key", "value");
+    const value = await manager.get("key");
+
+    expect(value).toBe("value");
+  });
+
+  it("应该删除缓存", async () => {
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+
+    await manager.set("key", "value");
+    expect(await manager.has("key")).toBeTruthy();
+
+    await manager.delete("key");
+    expect(await manager.has("key")).toBeFalsy();
+  });
+
+  it("应该检查键是否存在", async () => {
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+
+    expect(await manager.has("key")).toBeFalsy();
+
+    await manager.set("key", "value");
+    expect(await manager.has("key")).toBeTruthy();
+  });
+
+  it("应该获取所有键", async () => {
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+
+    await manager.set("key1", "value1");
+    await manager.set("key2", "value2");
+    await manager.set("key3", "value3");
+
+    const keys = await manager.keys();
+    expect(keys.length).toBe(3);
+    expect(keys).toContain("key1");
+    expect(keys).toContain("key2");
+    expect(keys).toContain("key3");
+  });
+
+  it("应该清空所有缓存", async () => {
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+
+    await manager.set("key1", "value1");
+    await manager.set("key2", "value2");
+
+    await manager.clear();
+    expect(await manager.has("key1")).toBeFalsy();
+    expect(await manager.has("key2")).toBeFalsy();
+  });
+
+  it("应该支持批量获取", async () => {
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+
+    await manager.set("key1", "value1");
+    await manager.set("key2", "value2");
+    await manager.set("key3", "value3");
+
+    const result = await manager.getMany(["key1", "key2", "key4"]);
+
+    expect(result.key1).toBe("value1");
+    expect(result.key2).toBe("value2");
+    expect(result.key4).toBeUndefined();
+  });
+
+  it("应该支持批量设置", async () => {
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+
+    await manager.setMany({
+      key1: "value1",
+      key2: "value2",
+      key3: "value3",
+    });
+
+    expect(await manager.get("key1")).toBe("value1");
+    expect(await manager.get("key2")).toBe("value2");
+    expect(await manager.get("key3")).toBe("value3");
+  });
+
+  it("应该支持批量设置带 TTL", async () => {
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+
+    await manager.setMany(
+      {
+        key1: "value1",
+        key2: "value2",
+      },
+      1,
+    );
+
+    expect(await manager.get("key1")).toBe("value1");
+    expect(await manager.get("key2")).toBe("value2");
+  });
+
+  it("应该支持设置缓存时添加标签", async () => {
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+
+    await manager.set("key1", "value1", undefined, ["tag1", "tag2"]);
+    await manager.set("key2", "value2", undefined, ["tag2", "tag3"]);
+
+    expect(await manager.get("key1")).toBe("value1");
+    expect(await manager.get("key2")).toBe("value2");
+  });
+
+  it("应该根据标签删除缓存", async () => {
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+
+    await manager.set("key1", "value1", undefined, ["tag1", "tag2"]);
+    await manager.set("key2", "value2", undefined, ["tag2", "tag3"]);
+    await manager.set("key3", "value3", undefined, ["tag3"]);
+
+    // 删除 tag1，应该只删除 key1
+    const deleted1 = await manager.deleteByTags(["tag1"]);
+    expect(deleted1).toBe(1);
+    expect(await manager.has("key1")).toBeFalsy();
+    expect(await manager.has("key2")).toBeTruthy();
+    expect(await manager.has("key3")).toBeTruthy();
+  });
+
+  it("应该根据多个标签删除缓存", async () => {
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+
+    await manager.set("key1", "value1", undefined, ["tag1", "tag2"]);
+    await manager.set("key2", "value2", undefined, ["tag2", "tag3"]);
+    await manager.set("key3", "value3", undefined, ["tag3"]);
+
+    // 删除 tag2 或 tag3，应该删除 key1, key2, key3
+    const deleted = await manager.deleteByTags(["tag2", "tag3"]);
+    expect(deleted).toBe(3);
+    expect(await manager.has("key1")).toBeFalsy();
+    expect(await manager.has("key2")).toBeFalsy();
+    expect(await manager.has("key3")).toBeFalsy();
+  });
+
+  it("应该支持切换适配器", async () => {
+    const adapter1 = new MemoryAdapter();
+    const adapter2 = new MemoryAdapter();
+    const manager = new CacheManager(adapter1);
+
+    await manager.set("key", "value1");
+    expect(await manager.get("key")).toBe("value1");
+
+    manager.setAdapter(adapter2);
+    expect(await manager.get("key")).toBeUndefined();
+
+    await manager.set("key", "value2");
+    expect(await manager.get("key")).toBe("value2");
+  });
+
+  it("应该获取当前适配器", () => {
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+
+    expect(manager.getAdapter()).toBe(adapter);
+  });
+
+  it("应该使用 FileAdapter", async () => {
+    const { makeTempDir, remove } = await import(
+      "@dreamer/runtime-adapter"
+    );
+    const testDir = await makeTempDir({ prefix: "cache-test-" });
+    const adapter = new FileAdapter({ cacheDir: testDir });
+    const manager = new CacheManager(adapter);
+
+    try {
+      await manager.set("key", "value");
+      const value = await manager.get("key");
+      expect(value).toBe("value");
+    } finally {
+      adapter.stopCleanup();
+      await remove(testDir, { recursive: true });
+    }
+  });
+
+  it("应该使用 RedisAdapter（mock）", async () => {
+    // 创建 mock Redis 客户端
+    const storage = new Map<string, string>();
+    const mockClient: RedisClient = {
+      async set(key: string, value: string) {
+        storage.set(key, value);
+      },
+      async get(key: string) {
+        return storage.get(key) || null;
+      },
+      async del(key: string) {
+        const existed = storage.has(key);
+        storage.delete(key);
+        return existed ? 1 : 0;
+      },
+      async exists(key: string) {
+        return storage.has(key) ? 1 : 0;
+      },
+      async keys(pattern: string) {
+        const regex = new RegExp(
+          pattern.replace(/\*/g, ".*").replace(/\?/g, "."),
+        );
+        return Array.from(storage.keys()).filter((key) => regex.test(key));
+      },
+      async expire(key: string, seconds: number) {
+        return storage.has(key) ? 1 : 0;
+      },
+    };
+
+    const adapter = new RedisAdapter({ client: mockClient });
+    const manager = new CacheManager(adapter);
+
+    await manager.set("key", "value");
+    const value = await manager.get("key");
+    expect(value).toBe("value");
+
+    await adapter.disconnect();
+  });
+});
