@@ -42,7 +42,7 @@ deno add jsr:@dreamer/cache/client
 - **环境**：✅ 支持（浏览器环境）
 - **依赖**：无外部依赖
 
-## 使用示例
+## 🚀 快速开始
 
 ### localStorage 缓存
 
@@ -161,43 +161,11 @@ const user = await cache.get("user:123");
 // 3. 如果命中，会回填到内存缓存
 ```
 
-### API 响应缓存示例
+---
 
-```typescript
-import { LocalStorageAdapter, CacheManager } from "jsr:@dreamer/cache/client";
+## 📚 API 文档
 
-const cache = new CacheManager(
-  new LocalStorageAdapter({ prefix: "api:", ttl: 300 })
-);
-
-// 封装 fetch，自动缓存响应
-async function cachedFetch(url: string, options?: RequestInit) {
-  const cacheKey = `response:${url}`;
-
-  // 先查缓存
-  const cached = await cache.get(cacheKey);
-  if (cached) {
-    return new Response(JSON.stringify(cached.data), {
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  // 如果未命中，发起请求
-  const response = await fetch(url, options);
-  const data = await response.json();
-
-  // 缓存响应
-  await cache.set(cacheKey, { data, timestamp: Date.now() });
-
-  return response;
-}
-
-// 使用
-const response = await cachedFetch("/api/users");
-const users = await response.json();
-```
-
-## 缓存适配器接口
+### 缓存适配器接口
 
 所有缓存适配器都实现统一的接口：
 
