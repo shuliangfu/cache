@@ -34,6 +34,7 @@ export type {
   CacheItem,
   CacheStrategy,
 } from "./adapters/types.ts";
+import type { RedisConnectionConfig } from "./adapters/mod.ts";
 import type { CacheAdapter } from "./adapters/types.ts";
 
 // 导出所有适配器
@@ -45,6 +46,38 @@ export type {
   RedisClient,
   RedisConnectionConfig,
 } from "./adapters/mod.ts";
+
+export type Adapter = "memory" | "file" | "redis";
+
+/**
+ * 缓存配置选项
+ * 统一的配置接口，支持所有适配器类型
+ */
+export interface CacheConfig {
+  /** 适配器类型（memory、file、redis） */
+  adapter?: Adapter;
+  /** 默认过期时间（秒） */
+  ttl?: number;
+  /** 最大缓存项数量（仅 memory 和 file 适配器） */
+  maxSize?: number;
+  /** 缓存策略（仅 memory 适配器，默认：lru） */
+  strategy?: "lru" | "fifo" | "lfu";
+  /** 缓存目录（仅 file 适配器，默认：./cache） */
+  cacheDir?: string;
+  /** 自动清理（仅 file 适配器） */
+  autoCleanup?: boolean;
+  /** 清理间隔（仅 file 适配器，毫秒） */
+  cleanupInterval?: number;
+  /** Redis 连接配置（仅 redis 适配器） */
+  connection?: RedisConnectionConfig;
+  /** Redis 连接池配置（仅 redis 适配器） */
+  pool?: {
+    /** 最小连接数 */
+    min?: number;
+    /** 最大连接数 */
+    max?: number;
+  };
+}
 
 /**
  * 缓存管理器
