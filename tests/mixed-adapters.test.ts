@@ -5,9 +5,11 @@
 
 import { makeTempDir, remove } from "@dreamer/runtime-adapter";
 import { afterAll, beforeAll, describe, expect, it } from "@dreamer/test";
+import type { MemcachedClient } from "../src/adapters/memcached.ts";
 import type { RedisClient } from "../src/adapters/redis.ts";
 import {
   FileAdapter,
+  MemcachedAdapter,
   MemoryAdapter,
   MultiLevelCache,
   RedisAdapter,
@@ -17,6 +19,7 @@ describe("混合适配器测试", () => {
   let testCacheDir: string;
   const fileAdapters: FileAdapter[] = [];
   const redisAdapters: RedisAdapter[] = [];
+  const memcachedAdapters: MemcachedAdapter[] = [];
 
   beforeAll(async () => {
     // 创建临时测试目录
@@ -39,6 +42,16 @@ describe("混合适配器测试", () => {
       }
     }
     redisAdapters.length = 0;
+
+    // 断开所有 Memcached 适配器的连接
+    for (const adapter of memcachedAdapters) {
+      try {
+        await adapter.disconnect();
+      } catch {
+        // 忽略断开连接错误
+      }
+    }
+    memcachedAdapters.length = 0;
 
     // 清理测试目录
     try {
@@ -104,6 +117,56 @@ describe("混合适配器测试", () => {
           return 1;
         }
         return 0;
+      },
+    };
+  }
+
+  /**
+   * 创建 mock Memcached 客户端
+   */
+  function createMockMemcachedClient(): MemcachedClient {
+    const storage = new Map<string, string>();
+    const timers = new Map<string, number>();
+
+    return {
+      async set(key: string, value: string, options?: { expires?: number }) {
+        const existingTimer = timers.get(key);
+        if (existingTimer) {
+          clearTimeout(existingTimer);
+        }
+
+        storage.set(key, value);
+        if (options?.expires) {
+          const ttlSeconds = Math.floor(options.expires / 1000);
+          const timer = setTimeout(() => {
+            storage.delete(key);
+            timers.delete(key);
+          }, ttlSeconds * 1000);
+          timers.set(key, timer as unknown as number);
+        }
+        return true;
+      },
+      async get(key: string) {
+        return storage.get(key) || null;
+      },
+      async delete(key: string) {
+        const existed = storage.has(key);
+        if (existed) {
+          const timer = timers.get(key);
+          if (timer) {
+            clearTimeout(timer);
+            timers.delete(key);
+          }
+          storage.delete(key);
+        }
+        return existed;
+      },
+      async getMulti(keys: string[]) {
+        const record: Record<string, string | null> = {};
+        for (const key of keys) {
+          record[key] = storage.get(key) || null;
+        }
+        return record;
       },
     };
   }
@@ -496,6 +559,127 @@ describe("混合适配器测试", () => {
       expect(await fileAdapter.has("key2")).toBeFalsy();
       expect(await redisAdapter.has("key1")).toBeFalsy();
       expect(await redisAdapter.has("key2")).toBeFalsy();
+    });
+  });
+
+  describe("Memory + Memcached 混合适配器", () => {
+    it("应该创建混合缓存（Memory + Memcached）", () => {
+      const mockClient = createMockMemcachedClient();
+      const memoryAdapter = new MemoryAdapter();
+      const memcachedAdapter = new MemcachedAdapter({ client: mockClient });
+      memcachedAdapters.push(memcachedAdapter);
+      const cache = new MultiLevelCache(memoryAdapter, memcachedAdapter);
+
+      expect(cache).toBeTruthy();
+    });
+
+    it("应该从第一层（Memory）查找缓存", async () => {
+      const mockClient = createMockMemcachedClient();
+      const memoryAdapter = new MemoryAdapter();
+      const memcachedAdapter = new MemcachedAdapter({ client: mockClient });
+      memcachedAdapters.push(memcachedAdapter);
+      const cache = new MultiLevelCache(memoryAdapter, memcachedAdapter);
+
+      memoryAdapter.set("key", "value1");
+
+      const value = await cache.get("key");
+      expect(value).toBe("value1");
+    });
+
+    it("应该从第二层（Memcached）查找缓存（如果第一层没有）", async () => {
+      const mockClient = createMockMemcachedClient();
+      const memoryAdapter = new MemoryAdapter();
+      const memcachedAdapter = new MemcachedAdapter({ client: mockClient });
+      memcachedAdapters.push(memcachedAdapter);
+      const cache = new MultiLevelCache(memoryAdapter, memcachedAdapter);
+
+      await memcachedAdapter.set("key", "value2");
+
+      const value = await cache.get("key");
+      expect(value).toBe("value2");
+    });
+
+    it("应该回填到上层缓存（Memory）", async () => {
+      const mockClient = createMockMemcachedClient();
+      const memoryAdapter = new MemoryAdapter();
+      const memcachedAdapter = new MemcachedAdapter({ client: mockClient });
+      memcachedAdapters.push(memcachedAdapter);
+      const cache = new MultiLevelCache(memoryAdapter, memcachedAdapter);
+
+      await memcachedAdapter.set("key", "value2");
+
+      // 从第二层获取，应该回填到第一层
+      await cache.get("key");
+
+      // 现在第一层也应该有
+      expect(memoryAdapter.get("key")).toBe("value2");
+    });
+
+    it("应该写入所有层级（Memory + Memcached）", async () => {
+      const mockClient = createMockMemcachedClient();
+      const memoryAdapter = new MemoryAdapter();
+      const memcachedAdapter = new MemcachedAdapter({ client: mockClient });
+      memcachedAdapters.push(memcachedAdapter);
+      const cache = new MultiLevelCache(memoryAdapter, memcachedAdapter);
+
+      await cache.set("key", "value");
+
+      expect(memoryAdapter.get("key")).toBe("value");
+      expect(await memcachedAdapter.get("key")).toBe("value");
+    });
+
+    it("应该从所有层级删除", async () => {
+      const mockClient = createMockMemcachedClient();
+      const memoryAdapter = new MemoryAdapter();
+      const memcachedAdapter = new MemcachedAdapter({ client: mockClient });
+      memcachedAdapters.push(memcachedAdapter);
+      const cache = new MultiLevelCache(memoryAdapter, memcachedAdapter);
+
+      memoryAdapter.set("key", "value1");
+      await memcachedAdapter.set("key", "value2");
+
+      await cache.delete("key");
+
+      expect(memoryAdapter.has("key")).toBeFalsy();
+      expect(await memcachedAdapter.has("key")).toBeFalsy();
+    });
+
+    it("应该支持批量操作", async () => {
+      const mockClient = createMockMemcachedClient();
+      const memoryAdapter = new MemoryAdapter();
+      const memcachedAdapter = new MemcachedAdapter({ client: mockClient });
+      memcachedAdapters.push(memcachedAdapter);
+      const cache = new MultiLevelCache(memoryAdapter, memcachedAdapter);
+
+      await cache.setMany({
+        key1: "value1",
+        key2: "value2",
+      });
+
+      expect(memoryAdapter.get("key1")).toBe("value1");
+      expect(await memcachedAdapter.get("key1")).toBe("value1");
+      expect(memoryAdapter.get("key2")).toBe("value2");
+      expect(await memcachedAdapter.get("key2")).toBe("value2");
+    });
+
+    it("应该支持标签删除", async () => {
+      const mockClient = createMockMemcachedClient();
+      const memoryAdapter = new MemoryAdapter();
+      const memcachedAdapter = new MemcachedAdapter({ client: mockClient });
+      memcachedAdapters.push(memcachedAdapter);
+      const cache = new MultiLevelCache(memoryAdapter, memcachedAdapter);
+
+      await cache.set("key1", "value1", undefined, ["tag1", "tag2"]);
+      await cache.set("key2", "value2", undefined, ["tag2", "tag3"]);
+
+      // 删除 tag2，应该删除 key1 和 key2（所有层级）
+      const deleted = await cache.deleteByTags(["tag2"]);
+      expect(deleted).toBe(4); // 每个适配器删除 2 个，共 4 个
+
+      expect(memoryAdapter.has("key1")).toBeFalsy();
+      expect(memoryAdapter.has("key2")).toBeFalsy();
+      expect(await memcachedAdapter.has("key1")).toBeFalsy();
+      expect(await memcachedAdapter.has("key2")).toBeFalsy();
     });
   });
 });

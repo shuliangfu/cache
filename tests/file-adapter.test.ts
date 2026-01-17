@@ -362,4 +362,28 @@ describe("FileAdapter", () => {
   }, {
     sanitizeOps: false, // 定时器操作
   });
+
+  it("应该处理批量获取中的部分键不存在", async () => {
+    const adapter = new FileAdapter({ cacheDir: testCacheDir });
+    adapters.push(adapter);
+
+    // 确保 key2 和 key4 不存在（先删除，如果存在）
+    try {
+      await adapter.delete("key2");
+      await adapter.delete("key4");
+    } catch {
+      // 忽略删除错误
+    }
+
+    await adapter.set("key1", "value1");
+    await adapter.set("key3", "value3");
+    // key2 和 key4 不存在
+
+    const result = await adapter.getMany(["key1", "key2", "key3", "key4"]);
+
+    expect(result.key1).toBe("value1");
+    expect(result.key2).toBeUndefined();
+    expect(result.key3).toBe("value3");
+    expect(result.key4).toBeUndefined();
+  });
 });

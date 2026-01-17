@@ -31,11 +31,17 @@
   - 连接池管理
   - 自动重连
   - 集群支持
+- **Memcached 缓存**：
+  - Memcached 客户端封装
+  - 高性能内存缓存
+  - 批量获取优化
+  - 适合单机或小规模分布式场景
 - **适配器模式**：
   - 统一的缓存接口（CacheAdapter）
   - 本地缓存适配器（MemoryAdapter）
   - 文件缓存适配器（FileAdapter）
   - Redis 缓存适配器（RedisAdapter）
+  - Memcached 缓存适配器（MemcachedAdapter）
   - 运行时切换缓存后端
   - 多级缓存支持
 
@@ -61,6 +67,7 @@
 - **本地数据缓存**：单机应用，内存缓存
 - **持久化缓存**：单机应用，文件缓存
 - **分布式缓存**：多实例应用，Redis 缓存
+- **高性能缓存**：单机或小规模分布式，Memcached 缓存
 - **性能优化**：减少数据库查询、API 调用
 - **会话存储**：用户会话数据缓存
 - **临时数据存储**：临时计算结果缓存
@@ -89,9 +96,9 @@ bunx jsr add @dreamer/cache
 |------|---------|------|
 | **Deno** | 2.5+ | ✅ 完全支持 |
 | **Bun** | 1.0+ | ✅ 完全支持 |
-| **服务端** | - | ✅ 支持（兼容 Deno 和 Bun 运行时，支持内存缓存、文件缓存、Redis 缓存） |
+| **服务端** | - | ✅ 支持（兼容 Deno 和 Bun 运行时，支持内存缓存、文件缓存、Redis 缓存、Memcached 缓存） |
 | **客户端** | - | ✅ 支持（浏览器环境，通过 `jsr:@dreamer/cache/client` 使用浏览器存储缓存） |
-| **依赖** | - | 📦 Redis 缓存需要 Redis 客户端（可选，服务端） |
+| **依赖** | - | 📦 Redis 缓存需要 Redis 客户端（可选，服务端）<br>📦 Memcached 缓存需要 Memcached 客户端（可选，服务端） |
 
 ---
 
@@ -179,6 +186,61 @@ await cache.set("user:123", { name: "Alice" });
 const user = await cache.get("user:123");
 ```
 
+### Memcached 缓存
+
+**方式1：使用连接配置（推荐）**
+
+```typescript
+import { MemcachedAdapter, CacheManager } from "jsr:@dreamer/cache";
+
+// 创建 Memcached 缓存适配器
+const memcachedCache = new MemcachedAdapter({
+  connection: {
+    host: "127.0.0.1",
+    port: 11211,
+    timeout: 5000,
+    compress: false,
+    maxConnections: 10,
+  },
+});
+
+await memcachedCache.connect();
+
+const cache = new CacheManager(memcachedCache);
+
+// 使用方式与其他适配器相同
+await cache.set("user:123", { name: "Alice" }, 3600); // 1小时过期
+const user = await cache.get("user:123");
+```
+
+**方式2：使用已创建的客户端**
+
+```typescript
+import { MemcachedAdapter, CacheManager } from "jsr:@dreamer/cache";
+import { MemcacheClient } from "npm:memcache-client";
+
+// 创建 Memcached 客户端
+const memcachedClient = new MemcacheClient({
+  server: "127.0.0.1:11211",
+});
+
+// 创建 Memcached 缓存适配器
+const memcachedCache = new MemcachedAdapter({ client: memcachedClient });
+
+const cache = new CacheManager(memcachedCache);
+
+// 使用方式与其他适配器相同
+await cache.set("user:123", { name: "Alice" }, 3600);
+const user = await cache.get("user:123");
+```
+
+> 📌 **注意**：
+> - Memcached 是内存缓存系统，数据存储在内存中
+> - 只要 Memcached 服务不重启，数据不会丢失
+> - 但服务重启后数据会丢失，如果需要真正的持久化，请使用 Redis 或 File 适配器
+> - Memcached 适配器性能高，适合单机或小规模分布式场景
+> - 支持批量获取优化（getMulti），提高性能
+
 ### 多级缓存
 
 ```typescript
@@ -186,15 +248,19 @@ import {
   MemoryAdapter,
   FileAdapter,
   RedisAdapter,
+  MemcachedAdapter,
   MultiLevelCache,
 } from "jsr:@dreamer/cache";
 
-// 创建多级缓存（内存 -> 文件 -> Redis）
+// 创建多级缓存（内存 -> 文件 -> Redis/Memcached）
 const memoryCache = new MemoryAdapter({ ttl: 300 }); // 5分钟
 const fileCache = new FileAdapter({ cacheDir: "./cache", ttl: 3600 }); // 1小时
 const redisCache = new RedisAdapter({ host: "localhost", port: 6379 }); // 永久
+// 或使用 Memcached
+// const memcachedCache = new MemcachedAdapter({ connection: { host: "localhost", port: 11211 } });
+// await memcachedCache.connect();
 
-// 多级缓存：先查内存，再查文件，最后查 Redis
+// 多级缓存：先查内存，再查文件，最后查 Redis/Memcached
 const cache = new MultiLevelCache(memoryCache, fileCache, redisCache);
 
 // 设置缓存（会写入所有层级）
@@ -298,6 +364,26 @@ Redis 缓存适配器，基于 Redis 客户端实现。
 - `password?: string`: Redis 密码
 - `db?: number`: Redis 数据库编号
 - `pool?: { min: number; max: number }`: 连接池配置
+
+### MemcachedAdapter
+
+Memcached 缓存适配器，基于 Memcached 客户端实现。
+
+**选项**：
+- `connection?: MemcachedConnectionConfig`: Memcached 连接配置
+  - `host?: string`: Memcached 服务器地址（默认：127.0.0.1）
+  - `port?: number`: Memcached 端口（默认：11211）
+  - `timeout?: number`: 连接超时时间（毫秒，默认：5000）
+  - `compress?: boolean`: 是否启用压缩（默认：false）
+  - `maxConnections?: number`: 最大连接数（默认：10）
+- `client?: MemcachedClient`: Memcached 客户端实例（如果提供 connection，则不需要提供 client）
+- `keyPrefix?: string`: 键前缀（可选，默认：cache）
+
+**注意**：
+- Memcached 是内存缓存系统，只要服务不重启数据不会丢失，但服务重启后数据会丢失
+- 如果需要真正的持久化（服务重启后数据不丢失），请使用 RedisAdapter 或 FileAdapter
+- Memcached 适配器性能高，适合单机或小规模分布式场景
+- 支持批量获取优化（getMulti），提高性能
 
 ### CacheManager
 

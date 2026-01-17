@@ -394,4 +394,122 @@ describe("RedisAdapter", () => {
     await adapter.disconnect();
     expect(adapter).toBeTruthy();
   });
+
+  it("应该处理特殊字符的键名", async () => {
+    const mockClient = createMockRedisClient();
+    const adapter = new RedisAdapter({ client: mockClient });
+    adapters.push(adapter);
+
+    await adapter.set("key:with:colons", "value1");
+    await adapter.set("key-with-dashes", "value2");
+    await adapter.set("key.with.dots", "value3");
+    await adapter.set("key_with_underscores", "value4");
+    await adapter.set("key with spaces", "value5");
+    await adapter.set("key/with/slashes", "value6");
+
+    expect(await adapter.get("key:with:colons")).toBe("value1");
+    expect(await adapter.get("key-with-dashes")).toBe("value2");
+    expect(await adapter.get("key.with.dots")).toBe("value3");
+    expect(await adapter.get("key_with_underscores")).toBe("value4");
+    expect(await adapter.get("key with spaces")).toBe("value5");
+    expect(await adapter.get("key/with/slashes")).toBe("value6");
+
+    // 验证 has 方法也能正确处理
+    expect(await adapter.has("key:with:colons")).toBeTruthy();
+    expect(await adapter.has("key-with-dashes")).toBeTruthy();
+
+    // 验证删除也能正确处理
+    await adapter.delete("key:with:colons");
+    expect(await adapter.has("key:with:colons")).toBeFalsy();
+  });
+
+  it("应该处理连接失败场景", async () => {
+    // 创建一个会抛出错误的 mock 客户端
+    const failingClient: RedisClient = {
+      async set() {
+        throw new Error("Connection failed");
+      },
+      async get() {
+        throw new Error("Connection failed");
+      },
+      async del() {
+        throw new Error("Connection failed");
+      },
+      async exists() {
+        throw new Error("Connection failed");
+      },
+      async keys() {
+        throw new Error("Connection failed");
+      },
+      async expire() {
+        throw new Error("Connection failed");
+      },
+    };
+
+    const adapter = new RedisAdapter({ client: failingClient });
+    adapters.push(adapter);
+
+    // 操作应该抛出错误
+    try {
+      await adapter.set("key", "value");
+      // 如果 set 成功，说明错误被捕获了，这是不对的
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toContain("Connection failed");
+    }
+
+    // get 方法应该抛出错误
+    await assertRejects(
+      async () => {
+        await adapter.get("key");
+      },
+      Error,
+    );
+  });
+
+  it("应该处理批量获取中的部分键不存在", async () => {
+    const mockClient = createMockRedisClient();
+    const adapter = new RedisAdapter({ client: mockClient });
+    adapters.push(adapter);
+
+    await adapter.set("key1", "value1");
+    // key2 不存在
+    await adapter.set("key3", "value3");
+    // key4 不存在
+
+    const result = await adapter.getMany(["key1", "key2", "key3", "key4"]);
+
+    expect(result.key1).toBe("value1");
+    expect(result.key2).toBeUndefined();
+    expect(result.key3).toBe("value3");
+    expect(result.key4).toBeUndefined();
+  });
+
+  it("应该处理大量键的批量获取（性能测试）", async () => {
+    const mockClient = createMockRedisClient();
+    const adapter = new RedisAdapter({ client: mockClient });
+    adapters.push(adapter);
+
+    // 添加 100 个键
+    const keys: string[] = [];
+    for (let i = 0; i < 100; i++) {
+      const key = `key${i}`;
+      await adapter.set(key, `value${i}`);
+      keys.push(key);
+    }
+
+    // 批量获取所有键
+    const startTime = Date.now();
+    const result = await adapter.getMany(keys);
+    const endTime = Date.now();
+
+    // 验证所有键都能获取到
+    expect(Object.keys(result).length).toBe(100);
+    for (let i = 0; i < 100; i++) {
+      expect(result[`key${i}`]).toBe(`value${i}`);
+    }
+
+    // 验证性能（应该在合理时间内完成，< 500ms）
+    expect(endTime - startTime).toBeLessThan(500);
+  });
 });

@@ -336,4 +336,44 @@ describe("MemoryAdapter", () => {
     // 如果停止清理后没有错误，说明成功
     expect(adapter).toBeTruthy();
   });
+
+  it("应该处理特殊字符的键名", () => {
+    const adapter = new MemoryAdapter();
+    adapter.set("key:with:colons", "value1");
+    adapter.set("key-with-dashes", "value2");
+    adapter.set("key.with.dots", "value3");
+    adapter.set("key_with_underscores", "value4");
+    adapter.set("key with spaces", "value5");
+    adapter.set("key/with/slashes", "value6");
+
+    expect(adapter.get("key:with:colons")).toBe("value1");
+    expect(adapter.get("key-with-dashes")).toBe("value2");
+    expect(adapter.get("key.with.dots")).toBe("value3");
+    expect(adapter.get("key_with_underscores")).toBe("value4");
+    expect(adapter.get("key with spaces")).toBe("value5");
+    expect(adapter.get("key/with/slashes")).toBe("value6");
+
+    // 验证 has 方法也能正确处理
+    expect(adapter.has("key:with:colons")).toBeTruthy();
+    expect(adapter.has("key-with-dashes")).toBeTruthy();
+
+    // 验证删除也能正确处理
+    adapter.delete("key:with:colons");
+    expect(adapter.has("key:with:colons")).toBeFalsy();
+  });
+
+  it("应该处理批量获取中的部分键不存在", async () => {
+    const adapter = new MemoryAdapter();
+    adapter.set("key1", "value1");
+    // key2 不存在
+    adapter.set("key3", "value3");
+    // key4 不存在
+
+    const result = await adapter.getMany(["key1", "key2", "key3", "key4"]);
+
+    expect(result.key1).toBe("value1");
+    expect(result.key2).toBeUndefined();
+    expect(result.key3).toBe("value3");
+    expect(result.key4).toBeUndefined();
+  });
 });

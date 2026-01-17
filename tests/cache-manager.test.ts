@@ -3,10 +3,12 @@
  */
 
 import { describe, expect, it } from "@dreamer/test";
+import type { MemcachedClient } from "../src/adapters/memcached.ts";
 import type { RedisClient } from "../src/adapters/redis.ts";
 import {
   CacheManager,
   FileAdapter,
+  MemcachedAdapter,
   MemoryAdapter,
   RedisAdapter,
 } from "../src/mod.ts";
@@ -235,6 +237,41 @@ describe("CacheManager", () => {
     };
 
     const adapter = new RedisAdapter({ client: mockClient });
+    const manager = new CacheManager(adapter);
+
+    await manager.set("key", "value");
+    const value = await manager.get("key");
+    expect(value).toBe("value");
+
+    await adapter.disconnect();
+  });
+
+  it("应该使用 MemcachedAdapter（mock）", async () => {
+    // 创建 mock Memcached 客户端
+    const storage = new Map<string, string>();
+    const mockClient: MemcachedClient = {
+      async set(key: string, value: string) {
+        storage.set(key, value);
+        return true;
+      },
+      async get(key: string) {
+        return storage.get(key) || null;
+      },
+      async delete(key: string) {
+        const existed = storage.has(key);
+        storage.delete(key);
+        return existed;
+      },
+      async getMulti(keys: string[]) {
+        const record: Record<string, string | null> = {};
+        for (const key of keys) {
+          record[key] = storage.get(key) || null;
+        }
+        return record;
+      },
+    };
+
+    const adapter = new MemcachedAdapter({ client: mockClient });
     const manager = new CacheManager(adapter);
 
     await manager.set("key", "value");

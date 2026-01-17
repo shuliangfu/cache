@@ -7,6 +7,7 @@
  * - 内存缓存：基于 Map 的内存缓存，支持 LRU、FIFO、LFU 策略
  * - 文件缓存：基于文件系统的持久化缓存
  * - Redis 缓存：基于 Redis 的分布式缓存
+ * - Memcached 缓存：基于 Memcached 的内存缓存（高性能）
  * - TTL 支持：自动过期时间管理
  * - 批量操作：支持批量读写
  * - 适配器模式：统一的缓存接口，易于扩展
@@ -34,27 +35,38 @@ export type {
   CacheItem,
   CacheStrategy,
 } from "./adapters/types.ts";
-import type { RedisConnectionConfig } from "./adapters/mod.ts";
+import type {
+  MemcachedConnectionConfig,
+  RedisConnectionConfig,
+} from "./adapters/mod.ts";
 import type { CacheAdapter } from "./adapters/types.ts";
 
 // 导出所有适配器
-export { FileAdapter, MemoryAdapter, RedisAdapter } from "./adapters/mod.ts";
+export {
+  FileAdapter,
+  MemcachedAdapter,
+  MemoryAdapter,
+  RedisAdapter,
+} from "./adapters/mod.ts";
 export type {
   FileAdapterOptions,
+  MemcachedAdapterOptions,
+  MemcachedClient,
+  MemcachedConnectionConfig,
   MemoryAdapterOptions,
   RedisAdapterOptions,
   RedisClient,
   RedisConnectionConfig,
 } from "./adapters/mod.ts";
 
-export type Adapter = "memory" | "file" | "redis";
+export type Adapter = "memory" | "file" | "redis" | "memcached";
 
 /**
  * 缓存配置选项
  * 统一的配置接口，支持所有适配器类型
  */
 export interface CacheConfig {
-  /** 适配器类型（memory、file、redis） */
+  /** 适配器类型（memory、file、redis、memcached） */
   adapter?: Adapter;
   /** 默认过期时间（秒） */
   ttl?: number;
@@ -77,6 +89,8 @@ export interface CacheConfig {
     /** 最大连接数 */
     max?: number;
   };
+  /** Memcached 连接配置（仅 memcached 适配器） */
+  memcachedConnection?: MemcachedConnectionConfig;
 }
 
 /**
