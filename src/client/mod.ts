@@ -237,4 +237,20 @@ export class MultiLevelCache implements CacheAdapter {
     });
     await Promise.all(promises);
   }
+
+  /**
+   * 根据标签删除缓存（删除所有层级）
+   * @param tags 标签数组
+   * @returns 删除的缓存键数量
+   */
+  async deleteByTags(tags: string[]): Promise<number> {
+    let totalDeleted = 0;
+    const promises = this.adapters.map(async (adapter) => {
+      const result = adapter.deleteByTags(tags);
+      const deleted = result instanceof Promise ? await result : result;
+      totalDeleted += deleted;
+    });
+    await Promise.all(promises);
+    return totalDeleted;
+  }
 }
