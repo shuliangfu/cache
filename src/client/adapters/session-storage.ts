@@ -4,7 +4,6 @@
  * @fileoverview sessionStorage 缓存适配器
  */
 
-
 import type { CacheAdapter, CacheItem } from "./base.ts";
 
 /**

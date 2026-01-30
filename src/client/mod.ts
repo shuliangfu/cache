@@ -29,7 +29,6 @@
  * ```
  */
 
-
 // 从适配器模块导入类型和接口
 import type { CacheAdapter } from "./adapters/mod.ts";
 export type { CacheAdapter, CacheItem, CacheStrategy } from "./adapters/mod.ts";

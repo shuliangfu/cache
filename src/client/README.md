@@ -1,6 +1,7 @@
 # @dreamer/cache/client
 
-> 一个用于浏览器的缓存库，提供统一的缓存接口，支持 localStorage、sessionStorage、IndexedDB 和内存缓存
+> 一个用于浏览器的缓存库，提供统一的缓存接口，支持
+> localStorage、sessionStorage、IndexedDB 和内存缓存
 
 [![JSR](https://jsr.io/badges/@dreamer/cache/client)](https://jsr.io/@dreamer/cache/client)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE.md)
@@ -52,7 +53,7 @@ deno add jsr:@dreamer/cache/client
 ### localStorage 缓存
 
 ```typescript
-import { LocalStorageAdapter, CacheManager } from "jsr:@dreamer/cache/client";
+import { CacheManager, LocalStorageAdapter } from "jsr:@dreamer/cache/client";
 
 // 创建 localStorage 缓存适配器
 const localStorageCache = new LocalStorageAdapter({
@@ -85,7 +86,7 @@ const users = await cache.getMany(["user:123", "user:456"]);
 ### sessionStorage 缓存
 
 ```typescript
-import { SessionStorageAdapter, CacheManager } from "jsr:@dreamer/cache/client";
+import { CacheManager, SessionStorageAdapter } from "jsr:@dreamer/cache/client";
 
 // 创建 sessionStorage 缓存适配器（临时缓存，关闭标签页后清除）
 const sessionCache = new SessionStorageAdapter({
@@ -103,7 +104,7 @@ const data = await cache.get("temp:data");
 ### IndexedDB 缓存（大容量）
 
 ```typescript
-import { IndexedDBAdapter, CacheManager } from "jsr:@dreamer/cache/client";
+import { CacheManager, IndexedDBAdapter } from "jsr:@dreamer/cache/client";
 
 // 创建 IndexedDB 缓存适配器（支持大容量存储）
 const indexedDBCache = new IndexedDBAdapter({
@@ -124,7 +125,7 @@ const data = await cache.get("large:data");
 ### 内存缓存（客户端）
 
 ```typescript
-import { MemoryAdapter, CacheManager } from "jsr:@dreamer/cache/client";
+import { CacheManager, MemoryAdapter } from "jsr:@dreamer/cache/client";
 
 // 创建内存缓存适配器（客户端，页面刷新后清除）
 const memoryCache = new MemoryAdapter({
@@ -144,8 +145,8 @@ const data = await cache.get("temp:data");
 
 ```typescript
 import {
-  MemoryAdapter,
   LocalStorageAdapter,
+  MemoryAdapter,
   MultiLevelCache,
 } from "jsr:@dreamer/cache/client";
 

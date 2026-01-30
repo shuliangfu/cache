@@ -351,12 +351,25 @@ describe("CacheManager ServiceContainer 集成", () => {
 
     const redisStorage = new Map<string, string>();
     const mockRedisClient = {
-      async set(key: string, value: string) { redisStorage.set(key, value); },
-      async get(key: string) { return redisStorage.get(key) || null; },
-      async del(key: string) { redisStorage.delete(key); return 1; },
-      async exists(key: string) { return redisStorage.has(key) ? 1 : 0; },
-      async keys(_pattern: string) { return Array.from(redisStorage.keys()); },
-      async expire(_key: string, _seconds: number) { return 1; },
+      async set(key: string, value: string) {
+        redisStorage.set(key, value);
+      },
+      async get(key: string) {
+        return redisStorage.get(key) || null;
+      },
+      async del(key: string) {
+        redisStorage.delete(key);
+        return 1;
+      },
+      async exists(key: string) {
+        return redisStorage.has(key) ? 1 : 0;
+      },
+      async keys(_pattern: string) {
+        return Array.from(redisStorage.keys());
+      },
+      async expire(_key: string, _seconds: number) {
+        return 1;
+      },
     };
     const redisAdapter = new RedisAdapter({ client: mockRedisClient });
     const redisManager = new CacheManager(redisAdapter, "redis");

@@ -7,11 +7,7 @@
  */
 
 // 导出基础类型和接口
-export type {
-  CacheAdapter,
-  CacheItem,
-  CacheStrategy,
-} from "./base.ts";
+export type { CacheAdapter, CacheItem, CacheStrategy } from "./base.ts";
 
 // 导出 localStorage 适配器
 export type { LocalStorageAdapterOptions } from "./local-storage.ts";

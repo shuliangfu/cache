@@ -62,7 +62,6 @@ export type {
 // 导入服务容器类型（可选依赖）
 import type { ServiceContainer } from "@dreamer/service";
 
-
 export type Adapter = "memory" | "file" | "redis" | "memcached";
 
 /**
@@ -130,7 +129,10 @@ export class CacheManager {
    * @param options 配置选项
    */
   constructor(options: CacheManagerOptions);
-  constructor(adapterOrOptions: CacheAdapter | CacheManagerOptions, name?: string) {
+  constructor(
+    adapterOrOptions: CacheAdapter | CacheManagerOptions,
+    name?: string,
+  ) {
     if ("adapter" in adapterOrOptions) {
       // 使用配置对象
       this.adapter = adapterOrOptions.adapter;
@@ -180,7 +182,10 @@ export class CacheManager {
    * @param name 管理器名称（默认：default）
    * @returns 缓存管理器实例
    */
-  static fromContainer(container: ServiceContainer, name?: string): CacheManager {
+  static fromContainer(
+    container: ServiceContainer,
+    name?: string,
+  ): CacheManager {
     const serviceName = !name || name === "default"
       ? "cacheManager"
       : `cacheManager:${name}`;

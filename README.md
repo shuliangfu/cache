@@ -1,6 +1,7 @@
 # @dreamer/cache
 
-> 一个兼容 Deno 和 Bun 的缓存库，提供统一的缓存接口，支持服务端缓存（内存、文件、Redis）
+> 一个兼容 Deno 和 Bun
+> 的缓存库，提供统一的缓存接口，支持服务端缓存（内存、文件、Redis）
 
 [![JSR](https://jsr.io/badges/@dreamer/cache)](https://jsr.io/@dreamer/cache)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE.md)
@@ -55,12 +56,13 @@
 
 ## 🎨 设计原则
 
-**所有 @dreamer/* 库都遵循以下原则**：
+__所有 @dreamer/_ 库都遵循以下原则_*：
 
 - **主包（@dreamer/xxx）**：用于服务端（兼容 Deno 和 Bun 运行时）
 - **客户端子包（@dreamer/xxx/client）**：用于客户端（浏览器环境）
 
 这样可以：
+
 - 明确区分服务端和客户端代码
 - 避免在客户端代码中引入服务端依赖
 - 提供更好的类型安全和代码提示
@@ -98,13 +100,13 @@ bunx jsr add @dreamer/cache
 
 ## 🌍 环境兼容性
 
-| 环境 | 版本要求 | 状态 |
-|------|---------|------|
-| **Deno** | 2.5+ | ✅ 完全支持 |
-| **Bun** | 1.0+ | ✅ 完全支持 |
-| **服务端** | - | ✅ 支持（兼容 Deno 和 Bun 运行时，支持内存缓存、文件缓存、Redis 缓存、Memcached 缓存） |
-| **客户端** | - | ✅ 支持（浏览器环境，通过 `jsr:@dreamer/cache/client` 使用浏览器存储缓存） |
-| **依赖** | - | 📦 Redis 缓存需要 Redis 客户端（可选，服务端）<br>📦 Memcached 缓存需要 Memcached 客户端（可选，服务端）<br>📦 服务容器集成需要 @dreamer/service（可选） |
+| 环境       | 版本要求 | 状态                                                                                                                                                     |
+| ---------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Deno**   | 2.5+     | ✅ 完全支持                                                                                                                                              |
+| **Bun**    | 1.0+     | ✅ 完全支持                                                                                                                                              |
+| **服务端** | -        | ✅ 支持（兼容 Deno 和 Bun 运行时，支持内存缓存、文件缓存、Redis 缓存、Memcached 缓存）                                                                   |
+| **客户端** | -        | ✅ 支持（浏览器环境，通过 `jsr:@dreamer/cache/client` 使用浏览器存储缓存）                                                                               |
+| **依赖**   | -        | 📦 Redis 缓存需要 Redis 客户端（可选，服务端）<br>📦 Memcached 缓存需要 Memcached 客户端（可选，服务端）<br>📦 服务容器集成需要 @dreamer/service（可选） |
 
 ---
 
@@ -113,7 +115,7 @@ bunx jsr add @dreamer/cache
 ### 内存缓存
 
 ```typescript
-import { MemoryAdapter, CacheManager } from "jsr:@dreamer/cache";
+import { CacheManager, MemoryAdapter } from "jsr:@dreamer/cache";
 
 // 创建内存缓存适配器
 const memoryCache = new MemoryAdapter({
@@ -148,7 +150,7 @@ console.log(users); // { "user:123": { name: "Alice" }, "user:456": { name: "Bob
 ### 文件缓存
 
 ```typescript
-import { FileAdapter, CacheManager } from "jsr:@dreamer/cache";
+import { CacheManager, FileAdapter } from "jsr:@dreamer/cache";
 
 // 创建文件缓存适配器
 const fileCache = new FileAdapter({
@@ -170,7 +172,7 @@ const data = await cache.get("data:123");
 ### Redis 缓存
 
 ```typescript
-import { RedisAdapter, CacheManager } from "jsr:@dreamer/cache";
+import { CacheManager, RedisAdapter } from "jsr:@dreamer/cache";
 
 // 创建 Redis 缓存适配器
 const redisCache = new RedisAdapter({
@@ -197,7 +199,7 @@ const user = await cache.get("user:123");
 **方式1：使用连接配置（推荐）**
 
 ```typescript
-import { MemcachedAdapter, CacheManager } from "jsr:@dreamer/cache";
+import { CacheManager, MemcachedAdapter } from "jsr:@dreamer/cache";
 
 // 创建 Memcached 缓存适配器
 const memcachedCache = new MemcachedAdapter({
@@ -222,7 +224,7 @@ const user = await cache.get("user:123");
 **方式2：使用已创建的客户端**
 
 ```typescript
-import { MemcachedAdapter, CacheManager } from "jsr:@dreamer/cache";
+import { CacheManager, MemcachedAdapter } from "jsr:@dreamer/cache";
 import { MemcacheClient } from "npm:memcache-client";
 
 // 创建 Memcached 客户端
@@ -241,6 +243,7 @@ const user = await cache.get("user:123");
 ```
 
 > 📌 **注意**：
+>
 > - Memcached 是内存缓存系统，数据存储在内存中
 > - 只要 Memcached 服务不重启，数据不会丢失
 > - 但服务重启后数据会丢失，如果需要真正的持久化，请使用 Redis 或 File 适配器
@@ -251,11 +254,11 @@ const user = await cache.get("user:123");
 
 ```typescript
 import {
-  MemoryAdapter,
   FileAdapter,
-  RedisAdapter,
   MemcachedAdapter,
+  MemoryAdapter,
   MultiLevelCache,
+  RedisAdapter,
 } from "jsr:@dreamer/cache";
 
 // 创建多级缓存（内存 -> 文件 -> Redis/Memcached）
@@ -283,11 +286,7 @@ const user = await cache.get("user:123");
 ### 运行时切换缓存后端
 
 ```typescript
-import {
-  MemoryAdapter,
-  FileAdapter,
-  CacheManager,
-} from "jsr:@dreamer/cache";
+import { CacheManager, FileAdapter, MemoryAdapter } from "jsr:@dreamer/cache";
 
 const memoryCache = new MemoryAdapter({ ttl: 300 });
 const fileCache = new FileAdapter({ cacheDir: "./cache", ttl: 3600 });
@@ -345,6 +344,7 @@ interface CacheAdapter {
 内存缓存适配器，基于 Map 实现。
 
 **选项**：
+
 - `ttl?: number`: 默认过期时间（秒）
 - `maxSize?: number`: 最大缓存项数量
 - `strategy?: "lru" | "fifo" | "lfu"`: 缓存淘汰策略
@@ -354,6 +354,7 @@ interface CacheAdapter {
 文件缓存适配器，基于文件系统实现。
 
 **选项**：
+
 - `cacheDir: string`: 缓存目录
 - `ttl?: number`: 默认过期时间（秒）
 - `maxSize?: number`: 最大缓存大小（字节）
@@ -365,6 +366,7 @@ interface CacheAdapter {
 Redis 缓存适配器，基于 Redis 客户端实现。
 
 **选项**：
+
 - `host: string`: Redis 主机
 - `port: number`: Redis 端口
 - `password?: string`: Redis 密码
@@ -376,18 +378,22 @@ Redis 缓存适配器，基于 Redis 客户端实现。
 Memcached 缓存适配器，基于 Memcached 客户端实现。
 
 **选项**：
+
 - `connection?: MemcachedConnectionConfig`: Memcached 连接配置
   - `host?: string`: Memcached 服务器地址（默认：127.0.0.1）
   - `port?: number`: Memcached 端口（默认：11211）
   - `timeout?: number`: 连接超时时间（毫秒，默认：5000）
   - `compress?: boolean`: 是否启用压缩（默认：false）
   - `maxConnections?: number`: 最大连接数（默认：10）
-- `client?: MemcachedClient`: Memcached 客户端实例（如果提供 connection，则不需要提供 client）
+- `client?: MemcachedClient`: Memcached 客户端实例（如果提供
+  connection，则不需要提供 client）
 - `keyPrefix?: string`: 键前缀（可选，默认：cache）
 
 **注意**：
+
 - Memcached 是内存缓存系统，只要服务不重启数据不会丢失，但服务重启后数据会丢失
-- 如果需要真正的持久化（服务重启后数据不丢失），请使用 RedisAdapter 或 FileAdapter
+- 如果需要真正的持久化（服务重启后数据不丢失），请使用 RedisAdapter 或
+  FileAdapter
 - Memcached 适配器性能高，适合单机或小规模分布式场景
 - 支持批量获取优化（getMulti），提高性能
 
@@ -396,10 +402,12 @@ Memcached 缓存适配器，基于 Memcached 客户端实现。
 缓存管理器，提供统一的缓存操作接口，支持服务容器集成。
 
 **构造函数**：
+
 - `new CacheManager(adapter: CacheAdapter, name?: string)`: 使用适配器创建
 - `new CacheManager(options: CacheManagerOptions)`: 使用配置对象创建
 
 **方法**：
+
 - `set(key: string, value: any, ttl?: number)`: 设置缓存
 - `get(key: string)`: 获取缓存
 - `delete(key: string)`: 删除缓存
@@ -413,7 +421,8 @@ Memcached 缓存适配器，基于 Memcached 客户端实现。
 - `getName()`: 获取管理器名称
 - `setContainer(container: ServiceContainer)`: 设置服务容器
 - `getContainer()`: 获取服务容器
-- `static fromContainer(container: ServiceContainer, name?: string)`: 从服务容器获取管理器
+- `static fromContainer(container: ServiceContainer, name?: string)`:
+  从服务容器获取管理器
 
 ### createCacheManager 工厂函数
 
@@ -445,7 +454,10 @@ const container = new ServiceContainer();
 const memoryCache = new CacheManager(new MemoryAdapter(), "memory");
 memoryCache.setContainer(container);
 
-const redisCache = new CacheManager(new RedisAdapter({ host: "localhost" }), "redis");
+const redisCache = new CacheManager(
+  new RedisAdapter({ host: "localhost" }),
+  "redis",
+);
 redisCache.setContainer(container);
 
 // 从服务容器获取
@@ -462,7 +474,9 @@ await redis.set("key", "value");
 多级缓存，支持多个缓存适配器的层级查找。
 
 **构造函数**：
-- `new MultiLevelCache(...adapters: CacheAdapter[])`: 创建多级缓存，适配器顺序决定查找优先级
+
+- `new MultiLevelCache(...adapters: CacheAdapter[])`:
+  创建多级缓存，适配器顺序决定查找优先级
 
 ---
 
