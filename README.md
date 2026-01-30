@@ -3,7 +3,8 @@
 > 一个兼容 Deno 和 Bun 的缓存库，提供统一的缓存接口，支持服务端缓存（内存、文件、Redis）
 
 [![JSR](https://jsr.io/badges/@dreamer/cache)](https://jsr.io/@dreamer/cache)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE.md)
+[![Tests](https://img.shields.io/badge/tests-201%20passed-brightgreen)](./TEST_REPORT.md)
 
 ---
 
@@ -44,6 +45,11 @@
   - Memcached 缓存适配器（MemcachedAdapter）
   - 运行时切换缓存后端
   - 多级缓存支持
+- **服务容器集成**：
+  - 支持 @dreamer/service 服务容器
+  - CacheManager 可注册到服务容器
+  - 支持命名管理器（多实例管理）
+  - 工厂函数 createCacheManager
 
 ---
 
@@ -98,7 +104,7 @@ bunx jsr add @dreamer/cache
 | **Bun** | 1.0+ | ✅ 完全支持 |
 | **服务端** | - | ✅ 支持（兼容 Deno 和 Bun 运行时，支持内存缓存、文件缓存、Redis 缓存、Memcached 缓存） |
 | **客户端** | - | ✅ 支持（浏览器环境，通过 `jsr:@dreamer/cache/client` 使用浏览器存储缓存） |
-| **依赖** | - | 📦 Redis 缓存需要 Redis 客户端（可选，服务端）<br>📦 Memcached 缓存需要 Memcached 客户端（可选，服务端） |
+| **依赖** | - | 📦 Redis 缓存需要 Redis 客户端（可选，服务端）<br>📦 Memcached 缓存需要 Memcached 客户端（可选，服务端）<br>📦 服务容器集成需要 @dreamer/service（可选） |
 
 ---
 
@@ -387,7 +393,11 @@ Memcached 缓存适配器，基于 Memcached 客户端实现。
 
 ### CacheManager
 
-缓存管理器，提供统一的缓存操作接口。
+缓存管理器，提供统一的缓存操作接口，支持服务容器集成。
+
+**构造函数**：
+- `new CacheManager(adapter: CacheAdapter, name?: string)`: 使用适配器创建
+- `new CacheManager(options: CacheManagerOptions)`: 使用配置对象创建
 
 **方法**：
 - `set(key: string, value: any, ttl?: number)`: 设置缓存
@@ -399,6 +409,53 @@ Memcached 缓存适配器，基于 Memcached 客户端实现。
 - `getMany(keys: string[])`: 批量获取
 - `setMany(data: Record<string, any>, ttl?: number)`: 批量设置
 - `setAdapter(adapter: CacheAdapter)`: 切换缓存适配器
+- `getAdapter()`: 获取当前适配器
+- `getName()`: 获取管理器名称
+- `setContainer(container: ServiceContainer)`: 设置服务容器
+- `getContainer()`: 获取服务容器
+- `static fromContainer(container: ServiceContainer, name?: string)`: 从服务容器获取管理器
+
+### createCacheManager 工厂函数
+
+创建缓存管理器并可选注册到服务容器。
+
+```typescript
+import { createCacheManager, MemoryAdapter } from "@dreamer/cache";
+import { ServiceContainer } from "@dreamer/service";
+
+const container = new ServiceContainer();
+const adapter = new MemoryAdapter({ ttl: 3600 });
+
+// 创建并注册到服务容器
+const cache = createCacheManager(adapter, container);
+
+// 之后可以从容器获取
+const cacheFromContainer = CacheManager.fromContainer(container);
+```
+
+### ServiceContainer 集成示例
+
+```typescript
+import { CacheManager, MemoryAdapter, RedisAdapter } from "@dreamer/cache";
+import { ServiceContainer } from "@dreamer/service";
+
+const container = new ServiceContainer();
+
+// 注册多个缓存管理器
+const memoryCache = new CacheManager(new MemoryAdapter(), "memory");
+memoryCache.setContainer(container);
+
+const redisCache = new CacheManager(new RedisAdapter({ host: "localhost" }), "redis");
+redisCache.setContainer(container);
+
+// 从服务容器获取
+const memory = CacheManager.fromContainer(container, "memory");
+const redis = CacheManager.fromContainer(container, "redis");
+
+// 使用缓存
+await memory.set("key", "value");
+await redis.set("key", "value");
+```
 
 ### MultiLevelCache
 

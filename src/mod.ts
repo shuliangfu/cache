@@ -59,6 +59,10 @@ export type {
   RedisConnectionConfig,
 } from "./adapters/mod.ts";
 
+// 导入服务容器类型（可选依赖）
+import type { ServiceContainer } from "@dreamer/service";
+
+
 export type Adapter = "memory" | "file" | "redis" | "memcached";
 
 /**
@@ -94,14 +98,93 @@ export interface CacheConfig {
 }
 
 /**
+ * 缓存管理器配置选项
+ */
+export interface CacheManagerOptions {
+  /** 管理器名称（用于服务容器注册） */
+  name?: string;
+  /** 缓存适配器 */
+  adapter: CacheAdapter;
+}
+
+/**
  * 缓存管理器
- * 提供统一的缓存操作接口，支持适配器切换
+ * 提供统一的缓存操作接口，支持适配器切换和服务容器集成
  */
 export class CacheManager {
+  /** 缓存适配器 */
   private adapter: CacheAdapter;
+  /** 服务容器引用 */
+  private container?: ServiceContainer;
+  /** 管理器名称 */
+  private readonly managerName: string;
 
-  constructor(adapter: CacheAdapter) {
-    this.adapter = adapter;
+  /**
+   * 创建缓存管理器
+   * @param adapter 缓存适配器
+   * @param name 管理器名称（默认：default）
+   */
+  constructor(adapter: CacheAdapter, name?: string);
+  /**
+   * 创建缓存管理器
+   * @param options 配置选项
+   */
+  constructor(options: CacheManagerOptions);
+  constructor(adapterOrOptions: CacheAdapter | CacheManagerOptions, name?: string) {
+    if ("adapter" in adapterOrOptions) {
+      // 使用配置对象
+      this.adapter = adapterOrOptions.adapter;
+      this.managerName = adapterOrOptions.name || "default";
+    } else {
+      // 使用适配器直接传入（向后兼容）
+      this.adapter = adapterOrOptions;
+      this.managerName = name || "default";
+    }
+  }
+
+  /**
+   * 获取管理器名称
+   * @returns 管理器名称
+   */
+  getName(): string {
+    return this.managerName;
+  }
+
+  /**
+   * 设置服务容器
+   * 将管理器注册到服务容器中
+   * @param container 服务容器实例
+   * @returns 当前管理器实例（链式调用）
+   */
+  setContainer(container: ServiceContainer): this {
+    this.container = container;
+    // 注册自身到容器
+    const serviceName = this.managerName === "default"
+      ? "cacheManager"
+      : `cacheManager:${this.managerName}`;
+    container.registerSingleton(serviceName, () => this);
+    return this;
+  }
+
+  /**
+   * 获取服务容器
+   * @returns 服务容器实例或 undefined
+   */
+  getContainer(): ServiceContainer | undefined {
+    return this.container;
+  }
+
+  /**
+   * 从服务容器获取缓存管理器
+   * @param container 服务容器实例
+   * @param name 管理器名称（默认：default）
+   * @returns 缓存管理器实例
+   */
+  static fromContainer(container: ServiceContainer, name?: string): CacheManager {
+    const serviceName = !name || name === "default"
+      ? "cacheManager"
+      : `cacheManager:${name}`;
+    return container.get<CacheManager>(serviceName);
   }
 
   /**
@@ -392,4 +475,38 @@ export class MultiLevelCache implements CacheAdapter {
     await Promise.all(promises);
     return totalDeleted;
   }
+}
+
+/**
+ * 创建缓存管理器的工厂函数
+ * @param adapter 缓存适配器
+ * @param container 服务容器实例（可选）
+ * @param name 管理器名称（可选，默认：default）
+ * @returns 缓存管理器实例
+ *
+ * @example
+ * ```typescript
+ * import { createCacheManager, MemoryAdapter } from "@dreamer/cache";
+ * import { ServiceContainer } from "@dreamer/service";
+ *
+ * const container = new ServiceContainer();
+ * const adapter = new MemoryAdapter({ ttl: 3600 });
+ *
+ * // 创建并注册到服务容器
+ * const cache = createCacheManager(adapter, container);
+ *
+ * // 之后可以从容器获取
+ * const cacheFromContainer = CacheManager.fromContainer(container);
+ * ```
+ */
+export function createCacheManager(
+  adapter: CacheAdapter,
+  container?: ServiceContainer,
+  name?: string,
+): CacheManager {
+  const manager = new CacheManager(adapter, name);
+  if (container) {
+    manager.setContainer(container);
+  }
+  return manager;
 }

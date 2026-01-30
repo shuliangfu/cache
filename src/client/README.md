@@ -3,7 +3,7 @@
 > 一个用于浏览器的缓存库，提供统一的缓存接口，支持 localStorage、sessionStorage、IndexedDB 和内存缓存
 
 [![JSR](https://jsr.io/badges/@dreamer/cache/client)](https://jsr.io/@dreamer/cache/client)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE.md)
 
 ---
 

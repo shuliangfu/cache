@@ -1,6 +1,6 @@
 {
   "name": "@dreamer/cache",
-  "version": "1.0.0-beta.5",
+  "version": "1.0.0-beta.6",
   "license": "MIT",
   "exports": {
     ".": "./src/mod.ts",
@@ -34,8 +34,9 @@
   },
   "imports": {
     "@dreamer/queue": "jsr:@dreamer/queue@1.0.0-beta.5",
-    "@dreamer/test": "jsr:@dreamer/test@^1.0.0-beta.13",
-    "@dreamer/runtime-adapter": "jsr:@dreamer/runtime-adapter@1.0.0-beta.17",
+    "@dreamer/service": "jsr:@dreamer/service@^1.0.0-beta.4",
+    "@dreamer/test": "jsr:@dreamer/test@^1.0.0-beta.39",
+    "@dreamer/runtime-adapter": "jsr:@dreamer/runtime-adapter@^1.0.0-beta.22",
     "redis": "npm:redis@^5.10.0",
     "memcache-client": "npm:memcache-client@^1.0.5"
   },

@@ -3,10 +3,12 @@
  */
 
 import { describe, expect, it } from "@dreamer/test";
+import { ServiceContainer } from "@dreamer/service";
 import type { MemcachedClient } from "../src/adapters/memcached.ts";
 import type { RedisClient } from "../src/adapters/redis.ts";
 import {
   CacheManager,
+  createCacheManager,
   FileAdapter,
   MemcachedAdapter,
   MemoryAdapter,
@@ -279,5 +281,157 @@ describe("CacheManager", () => {
     expect(value).toBe("value");
 
     await adapter.disconnect();
+  });
+});
+
+// ============ ServiceContainer 集成测试 ============
+
+describe("CacheManager ServiceContainer 集成", () => {
+  it("应该支持设置服务容器", () => {
+    const container = new ServiceContainer();
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+
+    const result = manager.setContainer(container);
+
+    expect(result).toBe(manager); // 链式调用
+    expect(manager.getContainer()).toBe(container);
+  });
+
+  it("应该将默认管理器注册到服务容器", () => {
+    const container = new ServiceContainer();
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+
+    manager.setContainer(container);
+
+    expect(container.has("cacheManager")).toBeTruthy();
+    expect(container.get("cacheManager")).toBe(manager);
+  });
+
+  it("应该支持命名管理器注册到服务容器", () => {
+    const container = new ServiceContainer();
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter, "redis");
+
+    manager.setContainer(container);
+
+    expect(manager.getName()).toBe("redis");
+    expect(container.has("cacheManager:redis")).toBeTruthy();
+    expect(container.get("cacheManager:redis")).toBe(manager);
+  });
+
+  it("应该从服务容器获取默认管理器", () => {
+    const container = new ServiceContainer();
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+    manager.setContainer(container);
+
+    const retrieved = CacheManager.fromContainer(container);
+
+    expect(retrieved).toBe(manager);
+  });
+
+  it("应该从服务容器获取命名管理器", () => {
+    const container = new ServiceContainer();
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter, "memory");
+    manager.setContainer(container);
+
+    const retrieved = CacheManager.fromContainer(container, "memory");
+
+    expect(retrieved).toBe(manager);
+  });
+
+  it("应该支持多个管理器注册到同一服务容器", () => {
+    const container = new ServiceContainer();
+    const memoryAdapter = new MemoryAdapter();
+    const memoryManager = new CacheManager(memoryAdapter, "memory");
+    memoryManager.setContainer(container);
+
+    const redisStorage = new Map<string, string>();
+    const mockRedisClient = {
+      async set(key: string, value: string) { redisStorage.set(key, value); },
+      async get(key: string) { return redisStorage.get(key) || null; },
+      async del(key: string) { redisStorage.delete(key); return 1; },
+      async exists(key: string) { return redisStorage.has(key) ? 1 : 0; },
+      async keys(_pattern: string) { return Array.from(redisStorage.keys()); },
+      async expire(_key: string, _seconds: number) { return 1; },
+    };
+    const redisAdapter = new RedisAdapter({ client: mockRedisClient });
+    const redisManager = new CacheManager(redisAdapter, "redis");
+    redisManager.setContainer(container);
+
+    expect(container.has("cacheManager:memory")).toBeTruthy();
+    expect(container.has("cacheManager:redis")).toBeTruthy();
+    expect(CacheManager.fromContainer(container, "memory")).toBe(memoryManager);
+    expect(CacheManager.fromContainer(container, "redis")).toBe(redisManager);
+  });
+
+  it("应该支持使用配置对象创建管理器", () => {
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager({ adapter, name: "custom" });
+
+    expect(manager.getName()).toBe("custom");
+    expect(manager.getAdapter()).toBe(adapter);
+  });
+
+  it("应该支持默认管理器名称", () => {
+    const adapter = new MemoryAdapter();
+    const manager = new CacheManager(adapter);
+
+    expect(manager.getName()).toBe("default");
+  });
+});
+
+describe("createCacheManager 工厂函数", () => {
+  it("应该创建缓存管理器", () => {
+    const adapter = new MemoryAdapter();
+    const manager = createCacheManager(adapter);
+
+    expect(manager).toBeInstanceOf(CacheManager);
+    expect(manager.getAdapter()).toBe(adapter);
+  });
+
+  it("应该创建并注册到服务容器", () => {
+    const container = new ServiceContainer();
+    const adapter = new MemoryAdapter();
+    const manager = createCacheManager(adapter, container);
+
+    expect(manager.getContainer()).toBe(container);
+    expect(container.has("cacheManager")).toBeTruthy();
+    expect(container.get("cacheManager")).toBe(manager);
+  });
+
+  it("应该创建命名管理器并注册到服务容器", () => {
+    const container = new ServiceContainer();
+    const adapter = new MemoryAdapter();
+    const manager = createCacheManager(adapter, container, "session");
+
+    expect(manager.getName()).toBe("session");
+    expect(container.has("cacheManager:session")).toBeTruthy();
+  });
+
+  it("应该在没有容器时正常工作", () => {
+    const adapter = new MemoryAdapter();
+    const manager = createCacheManager(adapter);
+
+    expect(manager.getContainer()).toBeUndefined();
+  });
+
+  it("应该能够正常使用缓存功能", async () => {
+    const container = new ServiceContainer();
+    const adapter = new MemoryAdapter();
+    const manager = createCacheManager(adapter, container);
+
+    await manager.set("key", "value");
+    const value = await manager.get("key");
+
+    expect(value).toBe("value");
+
+    // 从容器获取后也能正常使用
+    const retrieved = CacheManager.fromContainer(container);
+    const value2 = await retrieved.get("key");
+    expect(value2).toBe("value");
   });
 });
