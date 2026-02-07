@@ -1,372 +1,371 @@
-# @dreamer/cache 测试报告
+# @dreamer/cache Test Report
 
-## 测试概览
+## Test Overview
 
-- **测试库版本**: @dreamer/test@^1.0.0-beta.39
-- **运行时适配器版本**: @dreamer/runtime-adapter@1.0.0-beta.22
-- **测试框架**: @dreamer/test (兼容 Deno 和 Bun)
-- **测试时间**: 2026-01-30
-- **测试环境**:
+- **Test Library Version**: @dreamer/test@^1.0.0-beta.39
+- **Runtime Adapter Version**: @dreamer/runtime-adapter@1.0.0-beta.22
+- **Test Framework**: @dreamer/test (compatible with Deno and Bun)
+- **Test Date**: 2026-01-30
+- **Test Environment**:
   - Deno 2.6+
   - Bun 1.3.5
 
-## 测试结果
+## Test Results
 
-### 总体统计
+### Overall Statistics
 
-- **总测试数**: 201
-- **通过**: 201 ✅
-- **失败**: 0
-- **通过率**: 100% ✅
-- **测试执行时间**: ~6秒（Deno 环境）
+- **Total Tests**: 201
+- **Passed**: 201 ✅
+- **Failed**: 0
+- **Pass Rate**: 100% ✅
+- **Execution Time**: ~6s (Deno environment)
 
-### 测试文件统计
+### Test File Statistics
 
-| 测试文件                    | 测试数 | 状态        | 说明                                                                           |
-| --------------------------- | ------ | ----------- | ------------------------------------------------------------------------------ |
-| `cache-manager.test.ts`     | 30     | ✅ 全部通过 | CacheManager 完整功能测试 + ServiceContainer 集成                              |
-| `file-adapter.test.ts`      | 25     | ✅ 全部通过 | FileAdapter 完整测试（+1 批量获取边界情况）                                    |
-| `memcached-adapter.test.ts` | 38     | ✅ 全部通过 | MemcachedAdapter 完整测试（包含所有边界情况）                                  |
-| `memory-adapter.test.ts`    | 27     | ✅ 全部通过 | MemoryAdapter 完整测试（+2 特殊字符键名、批量获取边界情况）                    |
-| `mixed-adapters.test.ts`    | 30     | ✅ 全部通过 | 混合适配器测试（多级缓存组合）                                                 |
-| `multi-level-cache.test.ts` | 19     | ✅ 全部通过 | MultiLevelCache 完整测试                                                       |
-| `redis-adapter.test.ts`     | 27     | ✅ 全部通过 | RedisAdapter 完整测试（+4 特殊字符键名、连接失败、批量获取边界情况、性能测试） |
+| Test File                    | Tests | Status       | Description                                                                 |
+| ---------------------------- | ----- | ------------ | --------------------------------------------------------------------------- |
+| `cache-manager.test.ts`     | 30    | ✅ All pass  | CacheManager full functionality + ServiceContainer integration              |
+| `file-adapter.test.ts`      | 25    | ✅ All pass  | FileAdapter full tests (+1 batch get edge case)                            |
+| `memcached-adapter.test.ts` | 38    | ✅ All pass  | MemcachedAdapter full tests (including all edge cases)                    |
+| `memory-adapter.test.ts`    | 27    | ✅ All pass  | MemoryAdapter full tests (+2 special char keys, batch get edge cases)      |
+| `mixed-adapters.test.ts`    | 30    | ✅ All pass  | Mixed adapter tests (multi-level cache combinations)                        |
+| `multi-level-cache.test.ts` | 19    | ✅ All pass  | MultiLevelCache full tests                                                  |
+| `redis-adapter.test.ts`     | 27    | ✅ All pass  | RedisAdapter full tests (+4 special chars, connection failure, batch edge, perf) |
 
-## 功能测试详情
+## Functional Test Details
 
-### 1. CacheManager 核心功能 (cache-manager.test.ts) - 30 个测试
+### 1. CacheManager Core (cache-manager.test.ts) - 30 tests
 
-#### 1.1 基础功能测试 - 17 个测试
+#### 1.1 Basic Functionality - 17 tests
 
-| 测试场景                             | 状态 |
-| ------------------------------------ | ---- |
-| ✅ 应该创建缓存管理器                | 通过 |
-| ✅ 应该设置和获取缓存                | 通过 |
-| ✅ 应该删除缓存                      | 通过 |
-| ✅ 应该检查键是否存在                | 通过 |
-| ✅ 应该获取所有键                    | 通过 |
-| ✅ 应该清空所有缓存                  | 通过 |
-| ✅ 应该支持批量获取                  | 通过 |
-| ✅ 应该支持批量设置                  | 通过 |
-| ✅ 应该支持批量设置带 TTL            | 通过 |
-| ✅ 应该支持设置缓存时添加标签        | 通过 |
-| ✅ 应该根据标签删除缓存              | 通过 |
-| ✅ 应该根据多个标签删除缓存          | 通过 |
-| ✅ 应该支持切换适配器                | 通过 |
-| ✅ 应该获取当前适配器                | 通过 |
-| ✅ 应该使用 FileAdapter              | 通过 |
-| ✅ 应该使用 RedisAdapter（mock）     | 通过 |
-| ✅ 应该使用 MemcachedAdapter（mock） | 通过 |
+| Test Scenario                   | Status |
+| ------------------------------- | ------ |
+| ✅ Should create cache manager  | Pass   |
+| ✅ Should set and get cache     | Pass   |
+| ✅ Should delete cache         | Pass   |
+| ✅ Should check key existence   | Pass   |
+| ✅ Should get all keys         | Pass   |
+| ✅ Should clear all cache      | Pass   |
+| ✅ Should support batch get     | Pass   |
+| ✅ Should support batch set     | Pass   |
+| ✅ Should support batch set with TTL | Pass   |
+| ✅ Should support tags on set   | Pass   |
+| ✅ Should delete by tag         | Pass   |
+| ✅ Should delete by multiple tags | Pass   |
+| ✅ Should support adapter switch | Pass   |
+| ✅ Should get current adapter   | Pass   |
+| ✅ Should use FileAdapter       | Pass   |
+| ✅ Should use RedisAdapter (mock) | Pass   |
+| ✅ Should use MemcachedAdapter (mock) | Pass   |
 
-#### 1.2 ServiceContainer 集成测试 - 8 个测试
+#### 1.2 ServiceContainer Integration - 8 tests
 
-| 测试场景                                | 状态 |
-| --------------------------------------- | ---- |
-| ✅ 应该支持设置服务容器                 | 通过 |
-| ✅ 应该将默认管理器注册到服务容器       | 通过 |
-| ✅ 应该支持命名管理器注册到服务容器     | 通过 |
-| ✅ 应该从服务容器获取默认管理器         | 通过 |
-| ✅ 应该从服务容器获取命名管理器         | 通过 |
-| ✅ 应该支持多个管理器注册到同一服务容器 | 通过 |
-| ✅ 应该支持使用配置对象创建管理器       | 通过 |
-| ✅ 应该支持默认管理器名称               | 通过 |
+| Test Scenario                           | Status |
+| --------------------------------------- | ------ |
+| ✅ Should support service container set | Pass   |
+| ✅ Should register default manager to container | Pass   |
+| ✅ Should support named manager registration | Pass   |
+| ✅ Should get default manager from container | Pass   |
+| ✅ Should get named manager from container | Pass   |
+| ✅ Should support multiple managers in same container | Pass   |
+| ✅ Should support config object creation | Pass   |
+| ✅ Should support default manager name   | Pass   |
 
-#### 1.3 createCacheManager 工厂函数测试 - 5 个测试
+#### 1.3 createCacheManager Factory - 5 tests
 
-| 测试场景                              | 状态 |
-| ------------------------------------- | ---- |
-| ✅ 应该创建缓存管理器                 | 通过 |
-| ✅ 应该创建并注册到服务容器           | 通过 |
-| ✅ 应该创建命名管理器并注册到服务容器 | 通过 |
-| ✅ 应该在没有容器时正常工作           | 通过 |
-| ✅ 应该能够正常使用缓存功能           | 通过 |
+| Test Scenario                      | Status |
+| --------------------------------- | ------ |
+| ✅ Should create cache manager    | Pass   |
+| ✅ Should create and register to container | Pass   |
+| ✅ Should create named manager and register | Pass   |
+| ✅ Should work without container  | Pass   |
+| ✅ Should use cache normally       | Pass   |
 
-**实现特点**:
+**Implementation Highlights**:
 
-- ✅ CacheManager 作为统一入口，支持所有适配器类型
-- ✅ 支持默认配置和自定义配置
-- ✅ 完整的 CRUD 操作测试
-- ✅ 错误处理机制验证
-- ✅ 多级缓存支持验证
-- ✅ 服务容器集成，支持依赖注入
+- ✅ CacheManager as unified entry, supports all adapter types
+- ✅ Default and custom config support
+- ✅ Full CRUD operation tests
+- ✅ Error handling verification
+- ✅ Multi-level cache support verification
+- ✅ Service container integration, dependency injection support
 
-### 2. MemoryAdapter 内存缓存适配器 (memory-adapter.test.ts) - 27 个测试
+### 2. MemoryAdapter (memory-adapter.test.ts) - 27 tests
 
-| 测试类别 | 测试场景                                               | 状态    |
-| -------- | ------------------------------------------------------ | ------- |
-| 基础功能 | 创建、设置、获取、删除、清空、键列表                   | ✅ 通过 |
-| 数据类型 | string、number、boolean、null、object、array           | ✅ 通过 |
-| TTL 过期 | 默认 TTL、自定义 TTL、过期后自动清理                   | ✅ 通过 |
-| 缓存策略 | LRU、FIFO、LFU                                         | ✅ 通过 |
-| 批量操作 | 批量获取、批量设置、批量设置带 TTL                     | ✅ 通过 |
-| 标签功能 | 设置标签、根据标签删除、多标签删除、空标签、不存在标签 | ✅ 通过 |
-| 边界情况 | 特殊字符键名、批量获取部分键不存在                     | ✅ 通过 |
-| 自动清理 | 清理机制                                               | ✅ 通过 |
+| Category   | Test Scenarios                                                      | Status   |
+| ---------- | ------------------------------------------------------------------- | -------- |
+| Basic      | Create, set, get, delete, clear, keys                               | ✅ Pass  |
+| Data types | string, number, boolean, null, object, array                         | ✅ Pass  |
+| TTL        | Default TTL, custom TTL, auto cleanup on expiry                      | ✅ Pass  |
+| Strategies | LRU, FIFO, LFU                                                      | ✅ Pass  |
+| Batch      | Batch get, batch set, batch set with TTL                            | ✅ Pass  |
+| Tags       | Set tags, delete by tag, multi-tag delete, empty tag, missing tag   | ✅ Pass  |
+| Edge cases | Special char keys, partial keys missing in batch get                 | ✅ Pass  |
+| Cleanup    | Auto cleanup mechanism                                              | ✅ Pass  |
 
-**实现特点**:
+**Implementation Highlights**:
 
-- ✅ 支持三种缓存淘汰策略（LRU、FIFO、LFU）
-- ✅ 自动过期清理机制
-- ✅ 完整的标签支持
-- ✅ 高性能内存操作
-- ⚠️ **注意**：内存适配器仅用于开发和测试，不支持持久化
+- ✅ Three eviction strategies (LRU, FIFO, LFU)
+- ✅ Auto expiration cleanup
+- ✅ Full tag support
+- ✅ High-performance memory operations
+- ⚠️ **Note**: Memory adapter is for dev/test only, no persistence
 
-### 3. FileAdapter 文件缓存适配器 (file-adapter.test.ts) - 25 个测试
+### 3. FileAdapter (file-adapter.test.ts) - 25 tests
 
-| 测试类别 | 测试场景                                               | 状态    |
-| -------- | ------------------------------------------------------ | ------- |
-| 基础功能 | 创建、设置、获取、删除、清空、键列表                   | ✅ 通过 |
-| 数据类型 | string、number、boolean、null、object、array           | ✅ 通过 |
-| TTL 过期 | 默认 TTL、自定义 TTL、过期后自动清理                   | ✅ 通过 |
-| 批量操作 | 批量获取、批量设置、批量设置带 TTL                     | ✅ 通过 |
-| 标签功能 | 设置标签、根据标签删除、多标签删除、空标签、不存在标签 | ✅ 通过 |
-| 边界情况 | 特殊字符键名、键前缀、批量获取部分键不存在             | ✅ 通过 |
-| 自动清理 | 清理机制                                               | ✅ 通过 |
+| Category   | Test Scenarios                                                      | Status   |
+| ---------- | ------------------------------------------------------------------- | -------- |
+| Basic      | Create, set, get, delete, clear, keys                               | ✅ Pass  |
+| Data types | string, number, boolean, null, object, array                         | ✅ Pass  |
+| TTL        | Default TTL, custom TTL, auto cleanup on expiry                      | ✅ Pass  |
+| Batch      | Batch get, batch set, batch set with TTL                            | ✅ Pass  |
+| Tags       | Set tags, delete by tag, multi-tag delete, empty tag, missing tag   | ✅ Pass  |
+| Edge cases | Special char keys, key prefix, partial keys missing in batch get    | ✅ Pass  |
+| Cleanup    | Auto cleanup mechanism                                              | ✅ Pass  |
 
-**实现特点**:
+**Implementation Highlights**:
 
-- ✅ 基于文件系统的持久化缓存
-- ✅ 支持自定义缓存目录和键前缀
-- ✅ 自动过期清理机制
-- ✅ 完整的标签支持
-- ✅ 特殊字符键名处理（路径安全）
+- ✅ File system persistence
+- ✅ Custom cache dir and key prefix
+- ✅ Auto expiration cleanup
+- ✅ Full tag support
+- ✅ Special char key handling (path-safe)
 
-### 4. RedisAdapter Redis 缓存适配器 (redis-adapter.test.ts) - 27 个测试
+### 4. RedisAdapter (redis-adapter.test.ts) - 27 tests
 
-| 测试类别 | 测试场景                                                                         | 状态    |
-| -------- | -------------------------------------------------------------------------------- | ------- |
-| 基础功能 | 创建、设置、获取、删除、清空、键列表                                             | ✅ 通过 |
-| 数据类型 | string、number、boolean、null、object、array                                     | ✅ 通过 |
-| TTL 过期 | 默认 TTL、自定义 TTL                                                             | ✅ 通过 |
-| 批量操作 | 批量获取、批量设置、批量设置带 TTL、批量获取部分键不存在、大量键批量获取性能测试 | ✅ 通过 |
-| 标签功能 | 设置标签、根据标签删除、多标签删除、空标签、不存在标签                           | ✅ 通过 |
-| 连接管理 | 使用 client、使用 connection、未连接错误、断开连接                               | ✅ 通过 |
-| 边界情况 | 特殊字符键名、连接失败场景                                                       | ✅ 通过 |
-| 键前缀   | 支持                                                                             | ✅ 通过 |
+| Category   | Test Scenarios                                                                      | Status   |
+| ---------- | ----------------------------------------------------------------------------------- | -------- |
+| Basic      | Create, set, get, delete, clear, keys                                               | ✅ Pass  |
+| Data types | string, number, boolean, null, object, array                                         | ✅ Pass  |
+| TTL        | Default TTL, custom TTL                                                              | ✅ Pass  |
+| Batch      | Batch get, batch set, batch set with TTL, partial keys missing, large batch perf    | ✅ Pass  |
+| Tags       | Set tags, delete by tag, multi-tag delete, empty tag, missing tag                   | ✅ Pass  |
+| Connection | Use client, use connection, not connected error, disconnect                         | ✅ Pass  |
+| Edge cases | Special char keys, connection failure                                               | ✅ Pass  |
+| Key prefix | Supported                                                                           | ✅ Pass  |
 
-**实现特点**:
+**Implementation Highlights**:
 
-- ✅ 基于 Redis 的分布式缓存
-- ✅ 支持连接配置和客户端注入两种方式
-- ✅ 完整的错误处理和连接管理
-- ✅ 高性能批量操作
-- ✅ 完整的标签支持
-- ✅ 特殊字符键名处理
+- ✅ Redis-based distributed cache
+- ✅ Connection config and client injection
+- ✅ Full error handling and connection management
+- ✅ High-performance batch operations
+- ✅ Full tag support
+- ✅ Special char key handling
 
-### 5. MemcachedAdapter Memcached 缓存适配器 (memcached-adapter.test.ts) - 38 个测试
+### 5. MemcachedAdapter (memcached-adapter.test.ts) - 38 tests
 
-| 测试类别   | 测试场景                                                                         | 状态    |
-| ---------- | -------------------------------------------------------------------------------- | ------- |
-| 基础功能   | 创建、设置、获取、删除、清空、键列表                                             | ✅ 通过 |
-| 数据类型   | string、number、boolean、null、object、array                                     | ✅ 通过 |
-| TTL 过期   | 默认 TTL、自定义 TTL                                                             | ✅ 通过 |
-| 批量操作   | 批量获取、批量设置、批量设置带 TTL、批量获取部分键不存在、大量键批量获取性能测试 | ✅ 通过 |
-| 标签功能   | 设置标签、根据标签删除、多标签删除、空标签、不存在标签                           | ✅ 通过 |
-| 连接管理   | 使用 client、使用 connection、未连接错误、断开连接                               | ✅ 通过 |
-| 边界情况   | 特殊字符键名、连接失败场景、键列表维护、键列表损坏恢复、标签键列表损坏           | ✅ 通过 |
-| 并发场景   | 并发设置和删除、并发竞态条件                                                     | ✅ 通过 |
-| 键列表维护 | 空列表、损坏恢复、自动清理、JSON 解析异常                                        | ✅ 通过 |
+| Category       | Test Scenarios                                                                      | Status   |
+| -------------- | ----------------------------------------------------------------------------------- | -------- |
+| Basic          | Create, set, get, delete, clear, keys                                               | ✅ Pass  |
+| Data types     | string, number, boolean, null, object, array                                         | ✅ Pass  |
+| TTL            | Default TTL, custom TTL                                                              | ✅ Pass  |
+| Batch          | Batch get, batch set, batch set with TTL, partial keys missing, large batch perf   | ✅ Pass  |
+| Tags           | Set tags, delete by tag, multi-tag delete, empty tag, missing tag                   | ✅ Pass  |
+| Connection     | Use client, use connection, not connected error, disconnect                         | ✅ Pass  |
+| Edge cases     | Special char keys, connection failure, key list maintenance, corruption recovery   | ✅ Pass  |
+| Concurrency    | Concurrent set/delete, race conditions                                              | ✅ Pass  |
+| Key list       | Empty list, corruption recovery, auto cleanup, JSON parse error                     | ✅ Pass  |
 
-**实现特点**:
+**Implementation Highlights**:
 
-- ✅ 基于 Memcached 的分布式缓存
-- ✅ 支持连接配置和客户端注入两种方式
-- ✅ 使用 `getMulti` 优化批量获取性能
-- ✅ 内部维护键列表（Memcached 不支持 KEYS 命令）
-- ✅ 完整的错误处理和连接管理
-- ✅ 健壮的键列表维护机制（处理损坏、并发、异常）
-- ✅ 完整的标签支持
-- ⚠️ **注意**：Memcached 是内存缓存，容器重启后数据会丢失
+- ✅ Memcached-based distributed cache
+- ✅ Connection config and client injection
+- ✅ `getMulti` optimization for batch get
+- ✅ Internal key list maintenance (Memcached has no KEYS command)
+- ✅ Full error handling and connection management
+- ✅ Robust key list maintenance (handles corruption, concurrency, errors)
+- ✅ Full tag support
+- ⚠️ **Note**: Memcached is in-memory; data lost on container restart
 
-### 6. MultiLevelCache 多级缓存 (multi-level-cache.test.ts) - 19 个测试
+### 6. MultiLevelCache (multi-level-cache.test.ts) - 19 tests
 
-| 测试场景                                  | 状态 |
-| ----------------------------------------- | ---- |
-| ✅ 应该创建多级缓存                       | 通过 |
-| ✅ 应该从第一级缓存获取数据               | 通过 |
-| ✅ 应该从第二级缓存获取数据（回写第一级） | 通过 |
-| ✅ 应该从第三级缓存获取数据（回写前两级） | 通过 |
-| ✅ 应该写入所有级别的缓存                 | 通过 |
-| ✅ 应该删除所有级别的缓存                 | 通过 |
-| ✅ 应该清空所有级别的缓存                 | 通过 |
-| ✅ 应该支持 TTL                           | 通过 |
-| ✅ 应该支持标签                           | 通过 |
-| ✅ 应该支持批量操作                       | 通过 |
-| ✅ 应该处理缓存未命中                     | 通过 |
-| ✅ 应该处理部分缓存命中                   | 通过 |
-| ✅ 应该支持自定义缓存级别                 | 通过 |
-| ✅ 应该处理适配器错误                     | 通过 |
-| ✅ 应该支持缓存统计                       | 通过 |
-| ✅ 应该支持键列表获取                     | 通过 |
-| ✅ 应该处理空键列表                       | 通过 |
-| ✅ 应该支持并发访问                       | 通过 |
-| ✅ 应该处理缓存穿透                       | 通过 |
+| Test Scenario                           | Status |
+| --------------------------------------- | ------ |
+| ✅ Should create multi-level cache      | Pass   |
+| ✅ Should get from first level          | Pass   |
+| ✅ Should get from second level (write-back to first) | Pass   |
+| ✅ Should get from third level (write-back to both)   | Pass   |
+| ✅ Should write to all levels           | Pass   |
+| ✅ Should delete from all levels       | Pass   |
+| ✅ Should clear all levels             | Pass   |
+| ✅ Should support TTL                  | Pass   |
+| ✅ Should support tags                 | Pass   |
+| ✅ Should support batch operations     | Pass   |
+| ✅ Should handle cache miss            | Pass   |
+| ✅ Should handle partial cache hit     | Pass   |
+| ✅ Should support custom cache levels  | Pass   |
+| ✅ Should handle adapter errors        | Pass   |
+| ✅ Should support cache stats          | Pass   |
+| ✅ Should support keys list            | Pass   |
+| ✅ Should handle empty keys list        | Pass   |
+| ✅ Should support concurrent access    | Pass   |
+| ✅ Should handle cache penetration     | Pass   |
 
-**实现特点**:
+**Implementation Highlights**:
 
-- ✅ 支持多级缓存组合（如 Memory -> File -> Redis）
-- ✅ 自动回写机制（从下级缓存回写到上级）
-- ✅ 完整的错误处理
-- ✅ 缓存穿透保护
-- ✅ 并发访问支持
+- ✅ Multi-level combinations (e.g. Memory -> File -> Redis)
+- ✅ Auto write-back (from lower to upper levels)
+- ✅ Full error handling
+- ✅ Cache penetration protection
+- ✅ Concurrent access support
 
-### 7. Mixed Adapters 混合适配器测试 (mixed-adapters.test.ts) - 30 个测试
+### 7. Mixed Adapters (mixed-adapters.test.ts) - 30 tests
 
-| 测试组合           | 测试场景                                                              | 状态    |
-| ------------------ | --------------------------------------------------------------------- | ------- |
-| Memory + File      | 创建、获取（从 Memory、从 File）、回写、删除、批量操作、标签删除      | ✅ 通过 |
-| Memory + Redis     | 创建、获取（从 Memory、从 Redis）、回写、删除、批量操作、标签删除     | ✅ 通过 |
-| Memory + Memcached | 创建、获取（从 Memory、从 Memcached）、回写、删除、批量操作、标签删除 | ✅ 通过 |
-| File + Redis       | 创建、获取（从 File、从 Redis）、回写、删除、批量操作、标签删除       | ✅ 通过 |
-| File + Memcached   | 创建、获取（从 File、从 Memcached）、回写、删除、批量操作、标签删除   | ✅ 通过 |
+| Combination       | Test Scenarios                                                          | Status   |
+| ----------------- | ----------------------------------------------------------------------- | -------- |
+| Memory + File     | Create, get (from Memory, from File), write-back, delete, batch, tags   | ✅ Pass  |
+| Memory + Redis   | Create, get (from Memory, from Redis), write-back, delete, batch, tags  | ✅ Pass  |
+| Memory + Memcached | Create, get (from Memory, from Memcached), write-back, delete, batch, tags | ✅ Pass  |
+| File + Redis     | Create, get (from File, from Redis), write-back, delete, batch, tags   | ✅ Pass  |
+| File + Memcached | Create, get (from File, from Memcached), write-back, delete, batch, tags | ✅ Pass  |
 
-**实现特点**:
+**Implementation Highlights**:
 
-- ✅ 验证不同适配器组合的兼容性
-- ✅ 验证多级缓存的回写机制
-- ✅ 验证批量操作在多级缓存中的表现
-- ✅ 验证标签删除在多级缓存中的传播
+- ✅ Verify adapter combination compatibility
+- ✅ Verify multi-level write-back
+- ✅ Verify batch operations across levels
+- ✅ Verify tag delete propagation across levels
 
-## 适配器功能完整性
+## Adapter Feature Completeness
 
-| 功能特性                      | Memory | File | Redis | Memcached |
-| ----------------------------- | ------ | ---- | ----- | --------- |
-| **基础操作**                  |        |      |       |           |
-| 设置缓存                      | ✅     | ✅   | ✅    | ✅        |
-| 获取缓存                      | ✅     | ✅   | ✅    | ✅        |
-| 删除缓存                      | ✅     | ✅   | ✅    | ✅        |
-| 检查键是否存在                | ✅     | ✅   | ✅    | ✅        |
-| 获取所有键                    | ✅     | ✅   | ✅    | ✅        |
-| 清空所有缓存                  | ✅     | ✅   | ✅    | ✅        |
-| **高级功能**                  |        |      |       |           |
-| TTL 过期                      | ✅     | ✅   | ✅    | ✅        |
-| 自定义 TTL                    | ✅     | ✅   | ✅    | ✅        |
-| 批量获取                      | ✅     | ✅   | ✅    | ✅        |
-| 批量设置                      | ✅     | ✅   | ✅    | ✅        |
-| 标签支持                      | ✅     | ✅   | ✅    | ✅        |
-| 多标签删除                    | ✅     | ✅   | ✅    | ✅        |
-| **特有功能**                  |        |      |       |           |
-| 缓存策略（LRU/FIFO/LFU）      | ✅     | ❌   | ❌    | ❌        |
-| 自动清理                      | ✅     | ✅   | ❌    | ❌        |
-| 键前缀                        | ❌     | ✅   | ✅    | ✅        |
-| 连接管理                      | ❌     | ❌   | ✅    | ✅        |
-| 批量获取优化（getMulti/MGET） | ❌     | ❌   | ❌    | ✅        |
-| **边界情况**                  |        |      |       |           |
-| 特殊字符键名                  | ✅     | ✅   | ✅    | ✅        |
-| 连接失败处理                  | N/A    | N/A  | ✅    | ✅        |
-| 批量获取边界                  | ✅     | ✅   | ✅    | ✅        |
-| 键列表维护                    | N/A    | N/A  | N/A   | ✅        |
-| 并发场景                      | N/A    | N/A  | N/A   | ✅        |
+| Feature                         | Memory | File | Redis | Memcached |
+| ------------------------------- | ------ | ---- | ----- | --------- |
+| **Basic Operations**            |        |      |       |           |
+| Set cache                       | ✅     | ✅   | ✅    | ✅        |
+| Get cache                       | ✅     | ✅   | ✅    | ✅        |
+| Delete cache                    | ✅     | ✅   | ✅    | ✅        |
+| Check key existence             | ✅     | ✅   | ✅    | ✅        |
+| Get all keys                    | ✅     | ✅   | ✅    | ✅        |
+| Clear all cache                 | ✅     | ✅   | ✅    | ✅        |
+| **Advanced**                    |        |      |       |           |
+| TTL expiration                  | ✅     | ✅   | ✅    | ✅        |
+| Custom TTL                      | ✅     | ✅   | ✅    | ✅        |
+| Batch get                       | ✅     | ✅   | ✅    | ✅        |
+| Batch set                       | ✅     | ✅   | ✅    | ✅        |
+| Tag support                     | ✅     | ✅   | ✅    | ✅        |
+| Multi-tag delete                | ✅     | ✅   | ✅    | ✅        |
+| **Specific**                    |        |      |       |           |
+| Eviction (LRU/FIFO/LFU)         | ✅     | ❌   | ❌    | ❌        |
+| Auto cleanup                    | ✅     | ✅   | ❌    | ❌        |
+| Key prefix                      | ❌     | ✅   | ✅    | ✅        |
+| Connection management           | ❌     | ❌   | ✅    | ✅        |
+| Batch get optimization (getMulti/MGET) | ❌ | ❌   | ❌    | ✅        |
+| **Edge Cases**                  |        |      |       |           |
+| Special char keys               | ✅     | ✅   | ✅    | ✅        |
+| Connection failure handling     | N/A    | N/A  | ✅    | ✅        |
+| Batch get edge cases            | ✅     | ✅   | ✅    | ✅        |
+| Key list maintenance            | N/A    | N/A  | N/A   | ✅        |
+| Concurrency                     | N/A    | N/A  | N/A   | ✅        |
 
-## 适配器特性对比
+## Adapter Comparison
 
-| 特性           | Memory    | File       | Redis      | Memcached                   |
-| -------------- | --------- | ---------- | ---------- | --------------------------- |
-| **持久化**     | ❌        | ✅         | ✅         | ⚠️ 内存持久（容器重启丢失） |
-| **分布式**     | ❌        | ❌         | ✅         | ✅                          |
-| **性能**       | ⚡ 极快   | 🐢 较慢    | ⚡ 快      | ⚡ 快                       |
-| **功能完整性** | ✅ 完整   | ✅ 完整    | ✅ 完整    | ✅ 完整                     |
-| **测试覆盖**   | ✅ 27个   | ✅ 25个    | ✅ 27个    | ✅ 38个                     |
-| **适用场景**   | 开发/测试 | 单机持久化 | 分布式生产 | 分布式生产（内存缓存）      |
+| Property       | Memory    | File       | Redis      | Memcached                          |
+| -------------- | --------- | ---------- | ---------- | --------------------------------- |
+| **Persistence** | ❌        | ✅         | ✅         | ⚠️ In-memory (lost on restart)    |
+| **Distributed**| ❌        | ❌         | ✅         | ✅                                 |
+| **Performance**| ⚡ Very fast | 🐢 Slow  | ⚡ Fast    | ⚡ Fast                            |
+| **Completeness**| ✅ Full   | ✅ Full    | ✅ Full    | ✅ Full                            |
+| **Test Coverage**| ✅ 27   | ✅ 25     | ✅ 27     | ✅ 38                              |
+| **Use Case**   | Dev/Test  | Single-node persistence | Distributed prod | Distributed prod (in-memory) |
 
-## 测试覆盖分析
+## Coverage Analysis
 
-### 接口方法覆盖
+### Interface Method Coverage
 
-| 方法             | 说明           | Memory     | File       | Redis      | Memcached  |
-| ---------------- | -------------- | ---------- | ---------- | ---------- | ---------- |
-| `get()`          | 获取缓存       | ✅ 2个测试 | ✅ 2个测试 | ✅ 2个测试 | ✅ 4个测试 |
-| `set()`          | 设置缓存       | ✅ 2个测试 | ✅ 2个测试 | ✅ 2个测试 | ✅ 3个测试 |
-| `delete()`       | 删除缓存       | ✅ 1个测试 | ✅ 1个测试 | ✅ 1个测试 | ✅ 1个测试 |
-| `has()`          | 检查键是否存在 | ✅ 1个测试 | ✅ 1个测试 | ✅ 1个测试 | ✅ 1个测试 |
-| `keys()`         | 获取所有键     | ✅ 1个测试 | ✅ 1个测试 | ✅ 1个测试 | ✅ 1个测试 |
-| `clear()`        | 清空所有缓存   | ✅ 1个测试 | ✅ 1个测试 | ✅ 1个测试 | ✅ 1个测试 |
-| `getMany()`      | 批量获取       | ✅ 2个测试 | ✅ 2个测试 | ✅ 3个测试 | ✅ 3个测试 |
-| `setMany()`      | 批量设置       | ✅ 2个测试 | ✅ 2个测试 | ✅ 2个测试 | ✅ 2个测试 |
-| `deleteByTags()` | 根据标签删除   | ✅ 5个测试 | ✅ 5个测试 | ✅ 5个测试 | ✅ 5个测试 |
+| Method           | Description       | Memory    | File      | Redis     | Memcached |
+| ---------------- | ----------------- | --------- | --------- | --------- | --------- |
+| `get()`          | Get cache         | ✅ 2 tests | ✅ 2 tests | ✅ 2 tests | ✅ 4 tests |
+| `set()`          | Set cache         | ✅ 2 tests | ✅ 2 tests | ✅ 2 tests | ✅ 3 tests |
+| `delete()`       | Delete cache      | ✅ 1 test  | ✅ 1 test  | ✅ 1 test  | ✅ 1 test  |
+| `has()`          | Check key exists  | ✅ 1 test  | ✅ 1 test  | ✅ 1 test  | ✅ 1 test  |
+| `keys()`         | Get all keys      | ✅ 1 test  | ✅ 1 test  | ✅ 1 test  | ✅ 1 test  |
+| `clear()`        | Clear all         | ✅ 1 test  | ✅ 1 test  | ✅ 1 test  | ✅ 1 test  |
+| `getMany()`      | Batch get         | ✅ 2 tests | ✅ 2 tests | ✅ 3 tests | ✅ 3 tests |
+| `setMany()`      | Batch set         | ✅ 2 tests | ✅ 2 tests | ✅ 2 tests | ✅ 2 tests |
+| `deleteByTags()` | Delete by tags    | ✅ 5 tests | ✅ 5 tests | ✅ 5 tests | ✅ 5 tests |
 
-**结论**: ✅ **所有适配器的所有接口方法都有完整测试覆盖**
+**Conclusion**: ✅ **All adapters have full test coverage for all interface methods**
 
-### 边界情况覆盖
+### Edge Case Coverage
 
-| 边界情况               | Memory | File | Redis | Memcached |
-| ---------------------- | ------ | ---- | ----- | --------- |
-| 特殊字符键名           | ✅     | ✅   | ✅    | ✅        |
-| 连接失败场景           | N/A    | N/A  | ✅    | ✅        |
-| 批量获取部分键不存在   | ✅     | ✅   | ✅    | ✅        |
-| 大量键批量获取（性能） | ❌     | ❌   | ✅    | ✅        |
-| 键列表为空             | N/A    | N/A  | N/A   | ✅        |
-| 键列表损坏             | N/A    | N/A  | N/A   | ✅        |
-| 键列表自动清理         | N/A    | N/A  | N/A   | ✅        |
-| 标签键列表损坏         | N/A    | N/A  | N/A   | ✅        |
-| 并发场景               | N/A    | N/A  | N/A   | ✅        |
+| Edge Case                    | Memory | File | Redis | Memcached |
+| ---------------------------- | ------ | ---- | ----- | --------- |
+| Special char keys            | ✅     | ✅   | ✅    | ✅        |
+| Connection failure           | N/A    | N/A  | ✅    | ✅        |
+| Partial keys missing in batch get | ✅ | ✅   | ✅    | ✅        |
+| Large batch get (perf)       | ❌     | ❌   | ✅    | ✅        |
+| Empty key list               | N/A    | N/A  | N/A   | ✅        |
+| Key list corruption          | N/A    | N/A  | N/A   | ✅        |
+| Key list auto cleanup        | N/A    | N/A  | N/A   | ✅        |
+| Tag key list corruption      | N/A    | N/A  | N/A   | ✅        |
+| Concurrency                  | N/A    | N/A  | N/A   | ✅        |
 
-### 错误处理覆盖
+### Error Handling Coverage
 
-| 错误场景       | Memory | File | Redis | Memcached |
-| -------------- | ------ | ---- | ----- | --------- |
-| 未连接错误     | N/A    | N/A  | ✅    | ✅        |
-| 连接失败       | N/A    | N/A  | ✅    | ✅        |
-| JSON 解析异常  | N/A    | N/A  | N/A   | ✅        |
-| 键列表损坏恢复 | N/A    | N/A  | N/A   | ✅        |
+| Error Scenario      | Memory | File | Redis | Memcached |
+| ------------------- | ------ | ---- | ----- | --------- |
+| Not connected       | N/A    | N/A  | ✅    | ✅        |
+| Connection failure  | N/A    | N/A  | ✅    | ✅        |
+| JSON parse error    | N/A    | N/A  | N/A   | ✅        |
+| Key list corruption recovery | N/A | N/A  | N/A   | ✅        |
 
-## 性能特点
+## Performance Characteristics
 
 ### MemoryAdapter
 
-- ⚡ **极快**：内存操作，无 I/O 开销
-- 💾 **内存占用**：受 `maxSize` 限制，支持 LRU/FIFO/LFU 淘汰策略
-- ⚠️ **限制**：不支持持久化，进程重启后数据丢失
+- ⚡ **Very fast**: In-memory, no I/O
+- 💾 **Memory**: Limited by `maxSize`, LRU/FIFO/LFU eviction
+- ⚠️ **Limit**: No persistence, data lost on process restart
 
 ### FileAdapter
 
-- 🐢 **较慢**：文件 I/O 操作
-- 💾 **持久化**：数据存储在文件系统
-- ✅ **适用场景**：单机应用，需要持久化但不需要分布式
+- 🐢 **Slow**: File I/O
+- 💾 **Persistence**: Data on filesystem
+- ✅ **Use case**: Single-node apps needing persistence but not distribution
 
 ### RedisAdapter
 
-- ⚡ **快**：基于 Redis 的高性能缓存
-- 🌐 **分布式**：支持多实例共享缓存
-- ✅ **适用场景**：生产环境，需要分布式缓存
+- ⚡ **Fast**: Redis-based
+- 🌐 **Distributed**: Multi-instance shared cache
+- ✅ **Use case**: Production, distributed cache
 
 ### MemcachedAdapter
 
-- ⚡ **快**：基于 Memcached 的高性能缓存
-- 🌐 **分布式**：支持多实例共享缓存
-- 🚀 **优化**：使用 `getMulti` 批量获取优化
-- ⚠️ **限制**：内存缓存，容器重启后数据丢失
-- ✅ **适用场景**：生产环境，需要高性能内存缓存
+- ⚡ **Fast**: Memcached-based
+- 🌐 **Distributed**: Multi-instance shared cache
+- 🚀 **Optimization**: `getMulti` for batch get
+- ⚠️ **Limit**: In-memory, data lost on container restart
+- ✅ **Use case**: Production, high-performance in-memory cache
 
-## 必需服务
+## Required Services
 
-以下适配器需要外部服务支持：
+| Adapter           | External Service              |
+| ----------------- | ----------------------------- |
+| RedisAdapter      | Redis (tests use mock)        |
+| MemcachedAdapter  | Memcached (tests use mock)    |
+| FileAdapter       | Filesystem access             |
+| MemoryAdapter     | None                          |
 
-- **RedisAdapter**: 需要 Redis 服务（测试使用 mock）
-- **MemcachedAdapter**: 需要 Memcached 服务（测试使用 mock）
-- **FileAdapter**: 需要文件系统访问权限
-- **MemoryAdapter**: 无需外部服务
+## Strengths
 
-## 优点
+1. ✅ **Full adapter support**: Memory, File, Redis, Memcached
+2. ✅ **Unified interface**: All adapters implement `CacheAdapter`
+3. ✅ **Multi-level cache**: Combine adapters for multi-level caching
+4. ✅ **Full test coverage**: 201 tests, 100% pass rate
+5. ✅ **Edge case handling**: Special chars, connection failure, concurrency
+6. ✅ **Performance**: Memcached `getMulti` batch optimization
+7. ✅ **Robustness**: Memcached key list maintenance for various failures
+8. ✅ **Tag support**: All adapters support tags for batch management
+9. ✅ **Service container**: @dreamer/service integration for DI
 
-1. ✅ **完整的适配器支持**：Memory、File、Redis、Memcached 四种适配器
-2. ✅ **统一的接口**：所有适配器实现相同的 `CacheAdapter` 接口
-3. ✅ **多级缓存支持**：支持组合多个适配器实现多级缓存
-4. ✅ **完整的测试覆盖**：201 个测试，100% 通过率
-5. ✅ **边界情况处理**：特殊字符、连接失败、并发场景等都有测试
-6. ✅ **性能优化**：Memcached 使用 `getMulti` 批量获取优化
-7. ✅ **健壮性**：Memcached 键列表维护机制处理各种异常情况
-8. ✅ **标签支持**：所有适配器都支持标签功能，便于批量管理
-9. ✅ **服务容器集成**：支持 @dreamer/service 依赖注入
+## Conclusion
 
-## 结论
+@dreamer/cache is fully tested with all 201 tests passing and 100% pass rate. All adapters (Memory, File, Redis, Memcached) have thorough functional, edge case, and error handling tests. Multi-level cache and mixed adapter combinations are validated.
 
-@dreamer/cache 库经过全面测试，所有 201 个测试全部通过，测试覆盖率达到
-100%。所有适配器（Memory、File、Redis、Memcached）都经过完整的功能测试、边界情况测试和错误处理测试。多级缓存和混合适配器组合也经过充分验证。
+**Total tests**: 201
 
-**测试总数**: 201
+- Basic functionality: 183
+- ServiceContainer integration: 18
 
-- 基础功能测试：183 个
-- ServiceContainer 集成测试：18 个（新增）
-
-**所有适配器测试水平一致**，可以放心用于生产环境。
+**All adapters are tested at the same level** and suitable for production use.
