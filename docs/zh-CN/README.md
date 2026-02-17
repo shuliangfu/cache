@@ -1,19 +1,19 @@
 # @dreamer/cache
 
 > 一个兼容 Deno 和 Bun
-> 的缓存库，提供统一的缓存接口，支持服务端缓存（内存、文件、Redis）
+> 的缓存包，提供统一的缓存接口，支持服务端缓存（内存、文件、Redis）
 
-[English](./README.md) | 中文
+> [English](../en-US/README.md) | 中文 (Chinese)
 
 [![JSR](https://jsr.io/badges/@dreamer/cache)](https://jsr.io/@dreamer/cache)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE.md)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Tests](https://img.shields.io/badge/tests-201%20passed-brightgreen)](./TEST_REPORT.md)
 
 ---
 
 ## 🎯 功能
 
-缓存库，提供统一的缓存抽象层，支持多种缓存后端，用于数据缓存、性能优化等场景。
+缓存包，提供统一的缓存抽象层，支持多种缓存后端，用于数据缓存、性能优化等场景。
 
 ---
 
@@ -58,7 +58,7 @@
 
 ## 🎨 设计原则
 
-_所有 @dreamer/* 库都遵循以下原则_：
+__所有 @dreamer/_ 包都遵循以下原则_*：
 
 - **主包（@dreamer/xxx）**：用于服务端（兼容 Deno 和 Bun 运行时）
 - **客户端子包（@dreamer/xxx/client）**：用于客户端（浏览器环境）
@@ -484,9 +484,10 @@ await redis.set("key", "value");
 
 ## 📋 变更日志
 
-**v1.0.0** (2026-02-07) - 首个稳定版，包含缓存适配器（Memory、File、Redis、Memcached）、多级缓存、TTL、批量操作及服务容器集成。
+**v1.0.0** (2026-02-07) -
+首个稳定版，包含缓存适配器（Memory、File、Redis、Memcached）、多级缓存、TTL、批量操作及服务容器集成。
 
-详见 [CHANGELOG-zh.md](./CHANGELOG-zh.md)。
+详见 [CHANGELOG.md](./CHANGELOG.md)。
 
 ---
 
@@ -502,7 +503,7 @@ await redis.set("key", "value");
 
 ## 🌐 客户端支持
 
-客户端缓存支持请查看 [client/README.md](./src/client/README.md)。
+客户端缓存支持请查看 [client/README.md](./client/README.md)。
 
 ---
 
@@ -525,7 +526,7 @@ await redis.set("key", "value");
 
 ## 📄 许可证
 
-MIT License - 详见 [LICENSE.md](./LICENSE.md)
+Apache License 2.0 - 详见 [LICENSE](../../LICENSE)
 
 ---
 

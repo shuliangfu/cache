@@ -1,9 +1,28 @@
 # 变更日志
 
+[English](../en-US/CHANGELOG.md) | 中文 (Chinese)
+
 本文档记录 @dreamer/cache 的所有重要变更。
 
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
+
+---
+
+## [1.0.1] - 2026-02-18
+
+### 新增
+
+- **i18n**：服务端错误信息接入 @dreamer/i18n，支持 en-US、zh-CN。导出
+  `$t`、`initCacheI18n`、`setCacheLocale` 与 `Locale`，用于
+  RedisAdapter、MemcachedAdapter、MultiLevelCache。
+
+### 变更
+
+- **文档**：拆分为 `docs/en-US/` 与
+  `docs/zh-CN/`（README、CHANGELOG、TEST_REPORT、client README）；根目录 README
+  精简并链至文档。
+- **许可证**：在 `deno.json` 及文档中明确为 Apache-2.0。
 
 ---
 

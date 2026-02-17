@@ -1,0 +1,34 @@
+{
+  "cache": {
+    "atLeastOneAdapter": "At least one cache adapter is required",
+    "sessionStorage": {
+      "unavailable": "sessionStorage is not available; use in a browser environment",
+      "quotaExceeded": "sessionStorage quota exceeded"
+    },
+    "localStorage": {
+      "unavailable": "localStorage is not available; use in a browser environment",
+      "quotaExceeded": "localStorage quota exceeded"
+    },
+    "itemSizeLimit": "Cache item size exceeds limit: {size} > {maxSize}",
+    "indexedDb": {
+      "unavailable": "IndexedDB is not available; use in a browser environment",
+      "notInitialized": "IndexedDB is not initialized",
+      "openFailed": "Failed to open IndexedDB: {message}",
+      "setFailed": "Failed to set cache: {message}",
+      "deleteFailed": "Failed to delete cache: {message}",
+      "clearFailed": "Failed to clear cache: {message}",
+      "iterateFailed": "Failed to iterate cache: {message}",
+      "deleteByTagsFailed": "Failed to delete cache by tags: {message}"
+    },
+    "redis": {
+      "needConfig": "RedisAdapter requires connection config or client instance",
+      "connectFailed": "Failed to create Redis connection: {message}",
+      "notConnected": "Redis client is not connected; call connect() first"
+    },
+    "memcached": {
+      "needConfig": "MemcachedAdapter requires connection config or client instance",
+      "connectFailed": "Failed to create Memcached connection: {message}",
+      "notConnected": "Memcached client is not connected; call connect() first"
+    }
+  }
+}

@@ -7,6 +7,7 @@
  * Memcached 是内存缓存系统，性能高，适合单机或小规模分布式场景。
  */
 
+import { $t } from "../i18n.ts";
 import type { CacheAdapter, CacheItem } from "./types.ts";
 
 /**
@@ -83,9 +84,7 @@ export class MemcachedAdapter implements CacheAdapter {
       this.client = options.client;
       this.keyPrefix = options.keyPrefix || "cache";
     } else {
-      throw new Error(
-        "MemcachedAdapter 需要提供 connection 配置或 client 实例",
-      );
+      throw new Error($t("cache.memcached.needConfig"));
     }
   }
 
@@ -184,11 +183,8 @@ export class MemcachedAdapter implements CacheAdapter {
           },
         };
       } catch (error) {
-        throw new Error(
-          `无法创建 Memcached 连接: ${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        );
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error($t("cache.memcached.connectFailed", { message }));
       }
     }
   }
@@ -242,7 +238,7 @@ export class MemcachedAdapter implements CacheAdapter {
    */
   async get(key: string): Promise<unknown> {
     if (!this.client) {
-      throw new Error("Memcached 客户端未连接，请先调用 connect()");
+      throw new Error($t("cache.memcached.notConnected"));
     }
 
     try {
@@ -287,7 +283,7 @@ export class MemcachedAdapter implements CacheAdapter {
     tags?: string[],
   ): Promise<void> {
     if (!this.client) {
-      throw new Error("Memcached 客户端未连接，请先调用 connect()");
+      throw new Error($t("cache.memcached.notConnected"));
     }
 
     const now = Date.now();
@@ -386,7 +382,7 @@ export class MemcachedAdapter implements CacheAdapter {
    */
   async delete(key: string): Promise<void> {
     if (!this.client) {
-      throw new Error("Memcached 客户端未连接，请先调用 connect()");
+      throw new Error($t("cache.memcached.notConnected"));
     }
 
     const fullKey = this.getFullKey(key);
@@ -433,7 +429,7 @@ export class MemcachedAdapter implements CacheAdapter {
    */
   async has(key: string): Promise<boolean> {
     if (!this.client) {
-      throw new Error("Memcached 客户端未连接，请先调用 connect()");
+      throw new Error($t("cache.memcached.notConnected"));
     }
 
     try {
@@ -465,7 +461,7 @@ export class MemcachedAdapter implements CacheAdapter {
    */
   async keys(): Promise<string[]> {
     if (!this.client) {
-      throw new Error("Memcached 客户端未连接，请先调用 connect()");
+      throw new Error($t("cache.memcached.notConnected"));
     }
 
     try {
@@ -534,7 +530,7 @@ export class MemcachedAdapter implements CacheAdapter {
    */
   async clear(): Promise<void> {
     if (!this.client) {
-      throw new Error("Memcached 客户端未连接，请先调用 connect()");
+      throw new Error($t("cache.memcached.notConnected"));
     }
 
     try {
@@ -560,7 +556,7 @@ export class MemcachedAdapter implements CacheAdapter {
    */
   async getMany(keys: string[]): Promise<Record<string, unknown>> {
     if (!this.client) {
-      throw new Error("Memcached 客户端未连接，请先调用 connect()");
+      throw new Error($t("cache.memcached.notConnected"));
     }
 
     const result: Record<string, unknown> = {};
@@ -616,7 +612,7 @@ export class MemcachedAdapter implements CacheAdapter {
    */
   async deleteByTags(tags: string[]): Promise<number> {
     if (!this.client) {
-      throw new Error("Memcached 客户端未连接，请先调用 connect()");
+      throw new Error($t("cache.memcached.notConnected"));
     }
 
     if (!tags || tags.length === 0) {

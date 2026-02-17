@@ -4,13 +4,13 @@
 > localStorage、sessionStorage、IndexedDB 和内存缓存
 
 [![JSR](https://jsr.io/badges/@dreamer/cache/client)](https://jsr.io/@dreamer/cache/client)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE.md)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../../LICENSE)
 
 ---
 
 ## 服务端支持
 
-服务端缓存支持请查看 [服务端文档](../../README.md)。
+服务端缓存支持请查看 [服务端文档](../README.md)。
 
 ## 功能
 
@@ -239,7 +239,7 @@ interface CacheAdapter {
 
 ## 📄 许可证
 
-MIT License - 详见 [LICENSE.md](../../../LICENSE.md)
+Apache License 2.0 - 详见 [LICENSE](../../../LICENSE)
 
 ---
 

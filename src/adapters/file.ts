@@ -7,6 +7,7 @@
 import {
   join,
   mkdir,
+  readdir,
   readTextFile,
   remove,
   stat,
@@ -184,7 +185,6 @@ export class FileAdapter implements CacheAdapter {
    */
   async keys(): Promise<string[]> {
     try {
-      const { readdir } = await import("@dreamer/runtime-adapter");
       const entries = await readdir(this.cacheDir);
       const keys: string[] = [];
       const prefix = this.options.prefix ? `${this.options.prefix}_` : "";

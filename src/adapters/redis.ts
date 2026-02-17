@@ -4,6 +4,7 @@
  * @fileoverview Redis 缓存适配器
  */
 
+import { $t } from "../i18n.ts";
 import type { CacheAdapter, CacheItem } from "./types.ts";
 
 /**
@@ -87,9 +88,7 @@ export class RedisAdapter implements CacheAdapter {
       this.client = options.client;
       this.keyPrefix = options.keyPrefix || "cache";
     } else {
-      throw new Error(
-        "RedisAdapter 需要提供 connection 配置或 client 实例",
-      );
+      throw new Error($t("cache.redis.needConfig"));
     }
   }
 
@@ -160,11 +159,8 @@ export class RedisAdapter implements CacheAdapter {
           },
         };
       } catch (error) {
-        throw new Error(
-          `无法创建 Redis 连接: ${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        );
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error($t("cache.redis.connectFailed", { message }));
       }
     }
   }
@@ -211,7 +207,7 @@ export class RedisAdapter implements CacheAdapter {
    */
   async get(key: string): Promise<unknown> {
     if (!this.client) {
-      throw new Error("Redis 客户端未连接，请先调用 connect()");
+      throw new Error($t("cache.redis.notConnected"));
     }
 
     try {
@@ -256,7 +252,7 @@ export class RedisAdapter implements CacheAdapter {
     tags?: string[],
   ): Promise<void> {
     if (!this.client) {
-      throw new Error("Redis 客户端未连接，请先调用 connect()");
+      throw new Error($t("cache.redis.notConnected"));
     }
 
     const now = Date.now();
@@ -313,7 +309,7 @@ export class RedisAdapter implements CacheAdapter {
    */
   async delete(key: string): Promise<void> {
     if (!this.client) {
-      throw new Error("Redis 客户端未连接，请先调用 connect()");
+      throw new Error($t("cache.redis.notConnected"));
     }
 
     const fullKey = this.getFullKey(key);
@@ -328,7 +324,7 @@ export class RedisAdapter implements CacheAdapter {
    */
   async has(key: string): Promise<boolean> {
     if (!this.client) {
-      throw new Error("Redis 客户端未连接，请先调用 connect()");
+      throw new Error($t("cache.redis.notConnected"));
     }
 
     try {
@@ -346,7 +342,7 @@ export class RedisAdapter implements CacheAdapter {
    */
   async keys(): Promise<string[]> {
     if (!this.client) {
-      throw new Error("Redis 客户端未连接，请先调用 connect()");
+      throw new Error($t("cache.redis.notConnected"));
     }
 
     try {
@@ -376,7 +372,7 @@ export class RedisAdapter implements CacheAdapter {
    */
   async clear(): Promise<void> {
     if (!this.client) {
-      throw new Error("Redis 客户端未连接，请先调用 connect()");
+      throw new Error($t("cache.redis.notConnected"));
     }
 
     try {
@@ -421,7 +417,7 @@ export class RedisAdapter implements CacheAdapter {
    */
   async deleteByTags(tags: string[]): Promise<number> {
     if (!this.client) {
-      throw new Error("Redis 客户端未连接，请先调用 connect()");
+      throw new Error($t("cache.redis.notConnected"));
     }
 
     if (!tags || tags.length === 0) {

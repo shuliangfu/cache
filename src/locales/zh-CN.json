@@ -1,0 +1,34 @@
+{
+  "cache": {
+    "atLeastOneAdapter": "至少需要一个缓存适配器",
+    "sessionStorage": {
+      "unavailable": "sessionStorage 不可用，请在浏览器环境中使用",
+      "quotaExceeded": "sessionStorage 存储空间已满"
+    },
+    "localStorage": {
+      "unavailable": "localStorage 不可用，请在浏览器环境中使用",
+      "quotaExceeded": "localStorage 存储空间已满"
+    },
+    "itemSizeLimit": "缓存项大小超过限制: {size} > {maxSize}",
+    "indexedDb": {
+      "unavailable": "IndexedDB 不可用，请在浏览器环境中使用",
+      "notInitialized": "IndexedDB 未初始化",
+      "openFailed": "打开 IndexedDB 失败: {message}",
+      "setFailed": "设置缓存失败: {message}",
+      "deleteFailed": "删除缓存失败: {message}",
+      "clearFailed": "清空缓存失败: {message}",
+      "iterateFailed": "遍历缓存失败: {message}",
+      "deleteByTagsFailed": "根据标签删除缓存失败: {message}"
+    },
+    "redis": {
+      "needConfig": "RedisAdapter 需要提供 connection 配置或 client 实例",
+      "connectFailed": "无法创建 Redis 连接: {message}",
+      "notConnected": "Redis 客户端未连接，请先调用 connect()"
+    },
+    "memcached": {
+      "needConfig": "MemcachedAdapter 需要提供 connection 配置或 client 实例",
+      "connectFailed": "无法创建 Memcached 连接: {message}",
+      "notConnected": "Memcached 客户端未连接，请先调用 connect()"
+    }
+  }
+}

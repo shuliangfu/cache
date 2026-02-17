@@ -58,9 +58,13 @@ export type {
   RedisClient,
   RedisConnectionConfig,
 } from "./adapters/mod.ts";
+import { $t, initCacheI18n } from "./i18n.ts";
 
 // 导入服务容器类型（可选依赖）
 import type { ServiceContainer } from "@dreamer/service";
+
+// 入口处初始化 i18n，供适配器错误信息等文案使用
+initCacheI18n();
 
 export type Adapter = "memory" | "file" | "redis" | "memcached";
 
@@ -318,7 +322,7 @@ export class MultiLevelCache implements CacheAdapter {
 
   constructor(...adapters: CacheAdapter[]) {
     if (adapters.length === 0) {
-      throw new Error("至少需要一个缓存适配器");
+      throw new Error($t("cache.atLeastOneAdapter"));
     }
     this.adapters = adapters;
   }
@@ -515,3 +519,6 @@ export function createCacheManager(
   }
   return manager;
 }
+
+/** i18n：适配器错误信息等文案翻译，可按需 init 或使用默认入口初始化 */
+export { $t, initCacheI18n, type Locale, setCacheLocale } from "./i18n.ts";

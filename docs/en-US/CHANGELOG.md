@@ -1,9 +1,29 @@
 # Changelog
 
+[English](./CHANGELOG.md) | [中文 (Chinese)](../zh-CN/CHANGELOG.md)
+
 All notable changes to @dreamer/cache are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [1.0.1] - 2026-02-18
+
+### Added
+
+- **i18n**: Server-side error messages use @dreamer/i18n with en-US and zh-CN
+  locales. Exports `$t`, `initCacheI18n`, `setCacheLocale`, and `Locale` for
+  RedisAdapter, MemcachedAdapter, and MultiLevelCache.
+
+### Changed
+
+- **Docs**: Restructured into `docs/en-US/` and `docs/zh-CN/` (README,
+  CHANGELOG, TEST_REPORT, client README). Root README shortened with links to
+  docs.
+- **License**: Explicitly Apache-2.0 in `deno.json` and documentation.
 
 ---
 
