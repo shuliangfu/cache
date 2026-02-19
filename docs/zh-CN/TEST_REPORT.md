@@ -7,7 +7,7 @@
 - **测试库版本**：@dreamer/test@^1.0.0-beta.39
 - **运行时适配器版本**：@dreamer/runtime-adapter@1.0.0-beta.22
 - **测试框架**：@dreamer/test（兼容 Deno 与 Bun）
-- **测试日期**：2026-01-30
+- **测试日期**：2026-02-19
 - **测试环境**：
   - Deno 2.6+
   - Bun 1.3.5
@@ -16,27 +16,27 @@
 
 ### 总体统计
 
-- **总测试数**：201
-- **通过**：201 ✅
+- **总测试数**：208
+- **通过**：208 ✅
 - **失败**：0
 - **通过率**：100% ✅
-- **执行时间**：约 6s（Deno 环境）
+- **执行时间**：约 3s（Deno 环境）
 
 ### 测试文件统计
 
 | 测试文件                    | 测试数 | 状态        | 说明                                                          |
 | --------------------------- | ------ | ----------- | ------------------------------------------------------------- |
-| `cache-manager.test.ts`     | 30     | ✅ 全部通过 | CacheManager 完整功能 + ServiceContainer 集成                 |
-| `file-adapter.test.ts`      | 25     | ✅ 全部通过 | FileAdapter 完整测试（含 1 个批量 get 边界）                  |
-| `memcached-adapter.test.ts` | 38     | ✅ 全部通过 | MemcachedAdapter 完整测试（含所有边界）                       |
-| `memory-adapter.test.ts`    | 27     | ✅ 全部通过 | MemoryAdapter 完整测试（含特殊字符 key、批量 get 边界）       |
-| `mixed-adapters.test.ts`    | 30     | ✅ 全部通过 | 混合适配器测试（多级缓存组合）                                |
-| `multi-level-cache.test.ts` | 19     | ✅ 全部通过 | MultiLevelCache 完整测试                                      |
-| `redis-adapter.test.ts`     | 27     | ✅ 全部通过 | RedisAdapter 完整测试（含特殊字符、连接失败、批量边界、性能） |
+| `cache-manager.test.ts`     | 31     | ✅ 全部通过 | CacheManager 完整功能 + ServiceContainer 集成                 |
+| `file-adapter.test.ts`      | 27     | ✅ 全部通过 | FileAdapter 完整测试（含批量 get 边界）                       |
+| `memcached-adapter.test.ts` | 40     | ✅ 全部通过 | MemcachedAdapter 完整测试（含 i18n 错误信息、所有边界）       |
+| `memory-adapter.test.ts`    | 29     | ✅ 全部通过 | MemoryAdapter 完整测试（含特殊字符 key、批量 get 边界）       |
+| `mixed-adapters.test.ts`    | 32     | ✅ 全部通过 | 混合适配器测试（多级缓存组合）                                |
+| `multi-level-cache.test.ts` | 20     | ✅ 全部通过 | MultiLevelCache 完整测试                                      |
+| `redis-adapter.test.ts`     | 29     | ✅ 全部通过 | RedisAdapter 完整测试（含 i18n 错误信息、连接失败、批量边界） |
 
 ## 功能测试详情
 
-### 1. CacheManager 核心 (cache-manager.test.ts) - 30 个测试
+### 1. CacheManager 核心 (cache-manager.test.ts) - 31 个测试
 
 #### 1.1 基础功能 - 17 个测试
 
@@ -92,7 +92,7 @@
 - ✅ 多级缓存支持验证
 - ✅ 服务容器集成与依赖注入支持
 
-### 2. MemoryAdapter (memory-adapter.test.ts) - 27 个测试
+### 2. MemoryAdapter (memory-adapter.test.ts) - 29 个测试
 
 | 类别     | 测试场景                                              | 状态    |
 | -------- | ----------------------------------------------------- | ------- |
@@ -113,7 +113,7 @@
 - ✅ 高性能内存操作
 - ⚠️ **说明**：内存适配器仅用于开发/测试，无持久化
 
-### 3. FileAdapter (file-adapter.test.ts) - 25 个测试
+### 3. FileAdapter (file-adapter.test.ts) - 27 个测试
 
 | 类别     | 测试场景                                              | 状态    |
 | -------- | ----------------------------------------------------- | ------- |
@@ -133,7 +133,7 @@
 - ✅ 完整 tag 支持
 - ✅ 特殊字符 key 处理（路径安全）
 
-### 4. RedisAdapter (redis-adapter.test.ts) - 27 个测试
+### 4. RedisAdapter (redis-adapter.test.ts) - 29 个测试
 
 | 类别     | 测试场景                                                       | 状态    |
 | -------- | -------------------------------------------------------------- | ------- |
@@ -155,7 +155,7 @@
 - ✅ 完整 tag 支持
 - ✅ 特殊字符 key 处理
 
-### 5. MemcachedAdapter (memcached-adapter.test.ts) - 38 个测试
+### 5. MemcachedAdapter (memcached-adapter.test.ts) - 40 个测试
 
 | 类别     | 测试场景                                                       | 状态    |
 | -------- | -------------------------------------------------------------- | ------- |
@@ -180,7 +180,7 @@
 - ✅ 完整 tag 支持
 - ⚠️ **说明**：Memcached 为内存存储；容器重启后数据丢失
 
-### 6. MultiLevelCache (multi-level-cache.test.ts) - 19 个测试
+### 6. MultiLevelCache (multi-level-cache.test.ts) - 20 个测试
 
 | 测试场景                        | 状态 |
 | ------------------------------- | ---- |
@@ -212,7 +212,7 @@
 - ✅ 缓存穿透防护
 - ✅ 并发访问支持
 
-### 7. 混合适配器 (mixed-adapters.test.ts) - 30 个测试
+### 7. 混合适配器 (mixed-adapters.test.ts) - 32 个测试
 
 | 组合               | 测试场景                                                   | 状态    |
 | ------------------ | ---------------------------------------------------------- | ------- |

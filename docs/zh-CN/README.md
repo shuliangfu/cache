@@ -7,7 +7,7 @@
 
 [![JSR](https://jsr.io/badges/@dreamer/cache)](https://jsr.io/@dreamer/cache)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
-[![Tests](https://img.shields.io/badge/tests-201%20passed-brightgreen)](./TEST_REPORT.md)
+[![Tests](https://img.shields.io/badge/tests-208%20passed-brightgreen)](./TEST_REPORT.md)
 
 ---
 
@@ -484,8 +484,8 @@ await redis.set("key", "value");
 
 ## 📋 变更日志
 
-**v1.0.0** (2026-02-07) -
-首个稳定版，包含缓存适配器（Memory、File、Redis、Memcached）、多级缓存、TTL、批量操作及服务容器集成。
+**v1.0.2** (2026-02-19) - 变更：i18n 翻译方法由 `$t` 重命名为
+`$tr`；测试报告更新（208 个测试）。
 
 详见 [CHANGELOG.md](./CHANGELOG.md)。
 

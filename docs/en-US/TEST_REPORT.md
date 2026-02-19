@@ -7,7 +7,7 @@
 - **Test Library Version**: @dreamer/test@^1.0.0-beta.39
 - **Runtime Adapter Version**: @dreamer/runtime-adapter@1.0.0-beta.22
 - **Test Framework**: @dreamer/test (compatible with Deno and Bun)
-- **Test Date**: 2026-01-30
+- **Test Date**: 2026-02-19
 - **Test Environment**:
   - Deno 2.6+
   - Bun 1.3.5
@@ -16,27 +16,27 @@
 
 ### Overall Statistics
 
-- **Total Tests**: 201
-- **Passed**: 201 ✅
+- **Total Tests**: 208
+- **Passed**: 208 ✅
 - **Failed**: 0
 - **Pass Rate**: 100% ✅
-- **Execution Time**: ~6s (Deno environment)
+- **Execution Time**: ~3s (Deno environment)
 
 ### Test File Statistics
 
-| Test File                   | Tests | Status      | Description                                                                      |
-| --------------------------- | ----- | ----------- | -------------------------------------------------------------------------------- |
-| `cache-manager.test.ts`     | 30    | ✅ All pass | CacheManager full functionality + ServiceContainer integration                   |
-| `file-adapter.test.ts`      | 25    | ✅ All pass | FileAdapter full tests (+1 batch get edge case)                                  |
-| `memcached-adapter.test.ts` | 38    | ✅ All pass | MemcachedAdapter full tests (including all edge cases)                           |
-| `memory-adapter.test.ts`    | 27    | ✅ All pass | MemoryAdapter full tests (+2 special char keys, batch get edge cases)            |
-| `mixed-adapters.test.ts`    | 30    | ✅ All pass | Mixed adapter tests (multi-level cache combinations)                             |
-| `multi-level-cache.test.ts` | 19    | ✅ All pass | MultiLevelCache full tests                                                       |
-| `redis-adapter.test.ts`     | 27    | ✅ All pass | RedisAdapter full tests (+4 special chars, connection failure, batch edge, perf) |
+| Test File                   | Tests | Status      | Description                                                                   |
+| --------------------------- | ----- | ----------- | ----------------------------------------------------------------------------- |
+| `cache-manager.test.ts`     | 31    | ✅ All pass | CacheManager full functionality + ServiceContainer integration                |
+| `file-adapter.test.ts`      | 27    | ✅ All pass | FileAdapter full tests (batch get edge cases)                                 |
+| `memcached-adapter.test.ts` | 40    | ✅ All pass | MemcachedAdapter full tests (i18n error messages, all edge cases)             |
+| `memory-adapter.test.ts`    | 29    | ✅ All pass | MemoryAdapter full tests (special char keys, batch get edge cases)            |
+| `mixed-adapters.test.ts`    | 32    | ✅ All pass | Mixed adapter tests (multi-level cache combinations)                          |
+| `multi-level-cache.test.ts` | 20    | ✅ All pass | MultiLevelCache full tests                                                    |
+| `redis-adapter.test.ts`     | 29    | ✅ All pass | RedisAdapter full tests (i18n error messages, connection failure, batch edge) |
 
 ## Functional Test Details
 
-### 1. CacheManager Core (cache-manager.test.ts) - 30 tests
+### 1. CacheManager Core (cache-manager.test.ts) - 31 tests
 
 #### 1.1 Basic Functionality - 17 tests
 
@@ -92,7 +92,7 @@
 - ✅ Multi-level cache support verification
 - ✅ Service container integration, dependency injection support
 
-### 2. MemoryAdapter (memory-adapter.test.ts) - 27 tests
+### 2. MemoryAdapter (memory-adapter.test.ts) - 29 tests
 
 | Category   | Test Scenarios                                                    | Status  |
 | ---------- | ----------------------------------------------------------------- | ------- |
@@ -113,7 +113,7 @@
 - ✅ High-performance memory operations
 - ⚠️ **Note**: Memory adapter is for dev/test only, no persistence
 
-### 3. FileAdapter (file-adapter.test.ts) - 25 tests
+### 3. FileAdapter (file-adapter.test.ts) - 27 tests
 
 | Category   | Test Scenarios                                                    | Status  |
 | ---------- | ----------------------------------------------------------------- | ------- |
@@ -133,7 +133,7 @@
 - ✅ Full tag support
 - ✅ Special char key handling (path-safe)
 
-### 4. RedisAdapter (redis-adapter.test.ts) - 27 tests
+### 4. RedisAdapter (redis-adapter.test.ts) - 29 tests
 
 | Category   | Test Scenarios                                                                   | Status  |
 | ---------- | -------------------------------------------------------------------------------- | ------- |
@@ -155,7 +155,7 @@
 - ✅ Full tag support
 - ✅ Special char key handling
 
-### 5. MemcachedAdapter (memcached-adapter.test.ts) - 38 tests
+### 5. MemcachedAdapter (memcached-adapter.test.ts) - 40 tests
 
 | Category    | Test Scenarios                                                                   | Status  |
 | ----------- | -------------------------------------------------------------------------------- | ------- |
@@ -180,7 +180,7 @@
 - ✅ Full tag support
 - ⚠️ **Note**: Memcached is in-memory; data lost on container restart
 
-### 6. MultiLevelCache (multi-level-cache.test.ts) - 19 tests
+### 6. MultiLevelCache (multi-level-cache.test.ts) - 20 tests
 
 | Test Scenario                                         | Status |
 | ----------------------------------------------------- | ------ |
@@ -212,7 +212,7 @@
 - ✅ Cache penetration protection
 - ✅ Concurrent access support
 
-### 7. Mixed Adapters (mixed-adapters.test.ts) - 30 tests
+### 7. Mixed Adapters (mixed-adapters.test.ts) - 32 tests
 
 | Combination        | Test Scenarios                                                             | Status  |
 | ------------------ | -------------------------------------------------------------------------- | ------- |

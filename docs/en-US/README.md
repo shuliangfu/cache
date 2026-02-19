@@ -7,7 +7,7 @@
 
 [![JSR](https://jsr.io/badges/@dreamer/cache)](https://jsr.io/@dreamer/cache)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
-[![Tests](https://img.shields.io/badge/tests-201%20passed-brightgreen)](./TEST_REPORT.md)
+[![Tests](https://img.shields.io/badge/tests-208%20passed-brightgreen)](./TEST_REPORT.md)
 
 ---
 
@@ -493,9 +493,8 @@ Multi-level cache supporting layered lookup across multiple cache adapters.
 
 ## 📋 Changelog
 
-**v1.0.0** (2026-02-07) - First stable release with cache adapters (Memory,
-File, Redis, Memcached), multi-level cache, TTL, batch operations, and service
-container integration.
+**v1.0.2** (2026-02-19) - Changed: i18n translation method renamed from `$t` to
+`$tr`. Test report updated (208 tests).
 
 See [CHANGELOG.md](./CHANGELOG.md) for full details.
 

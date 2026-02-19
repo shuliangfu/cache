@@ -5,7 +5,7 @@
 
 [![JSR](https://jsr.io/badges/@dreamer/cache)](https://jsr.io/@dreamer/cache)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](./LICENSE)
-[![Tests](https://img.shields.io/badge/tests-201%20passed-brightgreen)](./docs/en-US/TEST_REPORT.md)
+[![Tests](https://img.shields.io/badge/tests-208%20passed-brightgreen)](./docs/en-US/TEST_REPORT.md)
 
 📖 **Docs**: [English](./docs/en-US/README.md) |
 [中文 (Chinese)](./docs/zh-CN/README.md)
@@ -13,8 +13,8 @@
 **Changelog**: [en-US](./docs/en-US/CHANGELOG.md) |
 [zh-CN](./docs/zh-CN/CHANGELOG.md)
 
-**Latest (v1.0.1)**: i18n (en-US/zh-CN) for server errors; docs restructure;
-license Apache-2.0.
+**Latest (v1.0.2)**: Changed – i18n translation method renamed from `$t` to
+`$tr`. See [CHANGELOG](./docs/en-US/CHANGELOG.md).
 
 ---
 

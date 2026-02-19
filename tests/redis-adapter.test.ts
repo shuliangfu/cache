@@ -111,7 +111,9 @@ describe("RedisAdapter", () => {
   it("应该在没有 client 或 connection 时抛出错误", () => {
     expect(() => {
       new RedisAdapter({});
-    }).toThrow("RedisAdapter 需要提供 connection 配置或 client 实例");
+    }).toThrow(
+      /RedisAdapter 需要提供 connection 配置或 client 实例|RedisAdapter requires connection config or client instance/,
+    );
   });
 
   it("应该设置和获取缓存", async () => {
@@ -375,13 +377,13 @@ describe("RedisAdapter", () => {
       },
     });
 
-    // 未调用 connect() 时应该抛出错误
+    // 未调用 connect() 时应该抛出错误（locale 可能为 zh 或 en）
     await assertRejects(
       async () => {
         await adapter.get("key");
       },
       Error,
-      "Redis 客户端未连接，请先调用 connect()",
+      /Redis 客户端未连接，请先调用 connect\(\)|Redis client is not connected; call connect\(\) first/,
     );
   });
 

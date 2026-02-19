@@ -10,6 +10,15 @@ and this project adheres to
 
 ---
 
+## [1.0.2] - 2026-02-19
+
+### Changed
+
+- **i18n**: Renamed translation method from `$t` to `$tr` to avoid conflict with
+  global `$t`. Update existing code to use `$tr` for package messages.
+
+---
+
 ## [1.0.1] - 2026-02-18
 
 ### Added

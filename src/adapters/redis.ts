@@ -4,7 +4,7 @@
  * @fileoverview Redis 缓存适配器
  */
 
-import { $t } from "../i18n.ts";
+import { $tr } from "../i18n.ts";
 import type { CacheAdapter, CacheItem } from "./types.ts";
 
 /**
@@ -88,7 +88,7 @@ export class RedisAdapter implements CacheAdapter {
       this.client = options.client;
       this.keyPrefix = options.keyPrefix || "cache";
     } else {
-      throw new Error($t("cache.redis.needConfig"));
+      throw new Error($tr("cache.redis.needConfig"));
     }
   }
 
@@ -160,7 +160,7 @@ export class RedisAdapter implements CacheAdapter {
         };
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        throw new Error($t("cache.redis.connectFailed", { message }));
+        throw new Error($tr("cache.redis.connectFailed", { message }));
       }
     }
   }
@@ -207,7 +207,7 @@ export class RedisAdapter implements CacheAdapter {
    */
   async get(key: string): Promise<unknown> {
     if (!this.client) {
-      throw new Error($t("cache.redis.notConnected"));
+      throw new Error($tr("cache.redis.notConnected"));
     }
 
     try {
@@ -252,7 +252,7 @@ export class RedisAdapter implements CacheAdapter {
     tags?: string[],
   ): Promise<void> {
     if (!this.client) {
-      throw new Error($t("cache.redis.notConnected"));
+      throw new Error($tr("cache.redis.notConnected"));
     }
 
     const now = Date.now();
@@ -309,7 +309,7 @@ export class RedisAdapter implements CacheAdapter {
    */
   async delete(key: string): Promise<void> {
     if (!this.client) {
-      throw new Error($t("cache.redis.notConnected"));
+      throw new Error($tr("cache.redis.notConnected"));
     }
 
     const fullKey = this.getFullKey(key);
@@ -324,7 +324,7 @@ export class RedisAdapter implements CacheAdapter {
    */
   async has(key: string): Promise<boolean> {
     if (!this.client) {
-      throw new Error($t("cache.redis.notConnected"));
+      throw new Error($tr("cache.redis.notConnected"));
     }
 
     try {
@@ -342,7 +342,7 @@ export class RedisAdapter implements CacheAdapter {
    */
   async keys(): Promise<string[]> {
     if (!this.client) {
-      throw new Error($t("cache.redis.notConnected"));
+      throw new Error($tr("cache.redis.notConnected"));
     }
 
     try {
@@ -372,7 +372,7 @@ export class RedisAdapter implements CacheAdapter {
    */
   async clear(): Promise<void> {
     if (!this.client) {
-      throw new Error($t("cache.redis.notConnected"));
+      throw new Error($tr("cache.redis.notConnected"));
     }
 
     try {
@@ -417,7 +417,7 @@ export class RedisAdapter implements CacheAdapter {
    */
   async deleteByTags(tags: string[]): Promise<number> {
     if (!this.client) {
-      throw new Error($t("cache.redis.notConnected"));
+      throw new Error($tr("cache.redis.notConnected"));
     }
 
     if (!tags || tags.length === 0) {
