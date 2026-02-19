@@ -9,6 +9,18 @@
 
 ---
 
+## [1.0.3] - 2026-02-19
+
+### 变更
+
+- **依赖**：@dreamer/queue ^1.0.1，@dreamer/service ^1.0.2，@dreamer/test
+  ^1.0.11，@dreamer/runtime-adapter ^1.0.15。
+- **i18n**：`initCacheI18n` 不再导出；i18n
+  在模块加载时自动初始化。请移除业务代码中 对 `initCacheI18n()`
+  的调用；需设置语言时使用 `setCacheLocale`（如测试中）。
+
+---
+
 ## [1.0.2] - 2026-02-19
 
 ### 变更

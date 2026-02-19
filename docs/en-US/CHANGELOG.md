@@ -10,6 +10,19 @@ and this project adheres to
 
 ---
 
+## [1.0.3] - 2026-02-19
+
+### Changed
+
+- **Dependencies**: Bumped @dreamer/queue to ^1.0.1, @dreamer/service to ^1.0.2,
+  @dreamer/test to ^1.0.11, @dreamer/runtime-adapter to ^1.0.15.
+- **i18n**: `initCacheI18n` is no longer exported; i18n initializes
+  automatically on module load. Remove any manual `initCacheI18n()` calls from
+  application code. Use `setCacheLocale` when you need to set the locale (e.g.
+  in tests).
+
+---
+
 ## [1.0.2] - 2026-02-19
 
 ### Changed

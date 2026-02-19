@@ -58,13 +58,10 @@ export type {
   RedisClient,
   RedisConnectionConfig,
 } from "./adapters/mod.ts";
-import { $tr, initCacheI18n } from "./i18n.ts";
+import { $tr } from "./i18n.ts";
 
 // 导入服务容器类型（可选依赖）
 import type { ServiceContainer } from "@dreamer/service";
-
-// 入口处初始化 i18n，供适配器错误信息等文案使用
-initCacheI18n();
 
 export type Adapter = "memory" | "file" | "redis" | "memcached";
 
@@ -520,4 +517,4 @@ export function createCacheManager(
   return manager;
 }
 
-// i18n 仅包内使用，不对外导出；测试需 init/setLocale 时从 ./i18n.ts 导入
+// i18n 仅包内使用，不对外导出；测试需 setLocale 时从 ./i18n.ts 导入

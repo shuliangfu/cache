@@ -13,8 +13,8 @@
 **Changelog**: [en-US](./docs/en-US/CHANGELOG.md) |
 [zh-CN](./docs/zh-CN/CHANGELOG.md)
 
-**Latest (v1.0.2)**: Changed – i18n translation method renamed from `$t` to
-`$tr`. See [CHANGELOG](./docs/en-US/CHANGELOG.md).
+**Latest (v1.0.3)**: Dependencies updated; i18n auto-initializes,
+`initCacheI18n` no longer exported. See [CHANGELOG](./docs/en-US/CHANGELOG.md).
 
 ---
 
